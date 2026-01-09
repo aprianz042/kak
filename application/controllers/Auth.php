@@ -1,0 +1,47 @@
+<?php
+defined('BASEPATH') OR exit('No direct script access allowed');
+
+class Auth extends CI_Controller {
+
+    public function login()
+    {
+        // jika sudah login → ke home
+        if ($this->session->userdata('logged_in') === TRUE) {
+            redirect('home');
+        }
+
+        $this->load->view('login');
+    }
+
+    public function do_login()
+    {
+        $nip      = $this->input->post('nip');
+        $password = $this->input->post('pass');
+
+        $user = $this->db->get_where('pegawai', [
+            'nip' => $nip
+        ])->row();
+
+        if ($user && password_verify($password, $user->pass)) {
+
+            $this->session->set_userdata([
+                'logged_in' => TRUE,
+                'user_id'   => $user->id,
+                'nip'       => $user->nip,
+                'nama'      => $user->nama,
+                'role'      => $user->role
+            ]);
+
+            redirect('home');
+        }
+
+        $this->session->set_flashdata('error', 'NIP atau Password salah');
+        redirect('auth/login');
+    }
+
+    public function logout()
+    {
+        $this->session->sess_destroy();
+        redirect('auth/login');
+    }
+}
