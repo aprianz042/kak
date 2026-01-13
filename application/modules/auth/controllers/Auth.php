@@ -1,12 +1,16 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Auth extends CI_Controller {
+class Auth extends MY_Controller {
+
+    public function __construct()
+    {
+        parent::__construct();
+    }
 
     public function login()
     {
-        // jika sudah login → ke home
-        if ($this->session->userdata('logged_in') === TRUE) {
+        if ($this->session->userdata('logged_in')) {
             redirect('home');
         }
 
