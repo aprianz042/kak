@@ -10,7 +10,7 @@ class Auth extends CI_Controller {
             redirect('home');
         }
 
-        $this->load->view('login');
+        $this->load->view('auth_view');
     }
 
     public function do_login()
