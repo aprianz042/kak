@@ -53,12 +53,14 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 $route['default_controller'] = 'auth/login';
 
-$route['auth']        = 'auth/login';
+$route['auth']        = 'auth';
 $route['auth/login']  = 'auth/login';
 $route['auth/logout'] = 'auth/logout';
 
 $route['home'] = 'home';
 $route['dashboard'] = 'dashboard';
+$route['docxgenerator'] = 'docxgenerator';
+
 
 $route['404_override'] = '';
 $route['translate_uri_dashes'] = FALSE;

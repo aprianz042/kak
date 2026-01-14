@@ -10,9 +10,8 @@ class Authenticated_Controller extends MY_Controller {
         $this->load->library('session');
 
         if (!$this->session->userdata('logged_in')) {
-            redirect('auth/login');
+            redirect(base_url('auth/login'));
+            exit;
         }
     }
 }
-
-

@@ -6,6 +6,12 @@ class Home extends Authenticated_Controller {
     public function index()
     {
         $data['nama'] = $this->session->userdata('nama');
-        $this->load->view('home_view', $data);
+        $data['title'] = 'Home';
+
+        // render view home sebagai STRING
+        $data['content'] = $this->load->view('home_view', $data, TRUE);
+
+        // load layout induk
+        $this->load->view('layouts/main', $data);
     }
 }

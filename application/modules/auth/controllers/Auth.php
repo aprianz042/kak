@@ -41,12 +41,12 @@ class Auth extends MY_Controller {
         }
 
         $this->session->set_flashdata('error', 'NIP atau Password salah');
-        redirect('auth/login');
+        redirect(base_url('auth/login'));
     }
 
     public function logout()
     {
         $this->session->sess_destroy();
-        redirect('auth/login');
+        redirect(base_url('auth/login'));
     }
 }

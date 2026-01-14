@@ -3,11 +3,17 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 use PhpOffice\PhpWord\TemplateProcessor;
 
-class Docx extends CI_Controller {
+class Docxgenerator extends Authenticated_Controller {
 
     public function index()
     {
-        $this->load->view('form');
+        $data['title'] = 'DOCX Generator';
+
+        // isi konten kanan
+        $data['content'] = $this->load->view('docxgenerator_view', [], TRUE);
+
+        // layout induk
+        $this->load->view('layouts/main', $data);
     }
 
     public function generate()
@@ -43,11 +49,10 @@ class Docx extends CI_Controller {
 
         $template->saveAs($filePath);
 
-        // simpan info ke session
         $this->session->set_flashdata('success', 'Dokumen berhasil dibuat');
         $this->session->set_flashdata('file', $fileName);
 
-        redirect('docx');
+        redirect('docxgenerator');
     }
 
     public function download($file)
@@ -64,5 +69,4 @@ class Docx extends CI_Controller {
         readfile($path);
         exit;
     }
-
 }
