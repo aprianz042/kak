@@ -2,11 +2,12 @@
 defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Auth extends MY_Controller {
-    
+
     public function __construct()
     {
         parent::__construct();
         $this->load->library('session');
+        $this->load->model('Auth_model');
     }
 
     public function login()
@@ -20,33 +21,34 @@ class Auth extends MY_Controller {
 
     public function do_login()
     {
-        $nip      = $this->input->post('nip');
+        $nip      = $this->input->post('nip', true);
         $password = $this->input->post('pass');
 
-        $user = $this->db->get_where('pegawai', [
-            'nip' => $nip
-        ])->row();
+        $user = $this->Auth_model->get_user_by_nip($nip);
 
         if ($user && password_verify($password, $user->pass)) {
 
             $this->session->set_userdata([
-                'logged_in' => TRUE,
+                'logged_in' => true,
                 'user_id'   => $user->id,
                 'nip'       => $user->nip,
+                'email'     => $user->email,
                 'nama'      => $user->nama,
                 'role'      => $user->role
             ]);
 
             redirect('home');
+            return;
         }
 
         $this->session->set_flashdata('error', 'NIP atau Password salah');
-        redirect(base_url('auth/login'));
+        redirect('auth/login');
     }
 
     public function logout()
     {
         $this->session->sess_destroy();
-        redirect(base_url('auth/login'));
+        redirect('auth/login');
     }
+
 }

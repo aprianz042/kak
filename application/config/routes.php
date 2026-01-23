@@ -60,6 +60,7 @@ $route['auth/logout'] = 'auth/logout';
 $route['home'] = 'home';
 $route['dashboard'] = 'dashboard';
 $route['docxgenerator'] = 'docxgenerator';
+$route['pegawai'] = 'pegawai';
 
 
 $route['404_override'] = '';
