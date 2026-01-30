@@ -64,19 +64,19 @@
                         <div class="invalid-feedback">Komponen wajib diisi.</div>
                     </div>
 
-                    <!-- Kode Anggaran -->
                     <div class="mb-3">
-                        <label class="form-label">Kode Anggaran <span class="text-danger">*</span></label>
-                        <input type="text" name="kode_anggaran" class="form-control" placeholder="Masukkan Kode Anggaran" required>
-                        <div class="invalid-feedback">Kode Anggaran wajib diisi.</div>
+                        <label class="form-label">Anggaran <span class="text-danger">*</span></label>
+                        <select name="anggaran_id" id="anggaran_id" class="form-control" required>
+                            <option value="">-- Pilih Anggaran --</option>
+                            <?php foreach ($anggaran as $row): ?>
+                                <option value="<?= $row->id ?>" data-kode="<?= $row->kode_akun ?>" data-nama="<?= $row->nama_kegiatan ?>"> <?= $row->kode_akun ?> - <?= $row->nama_kegiatan ?></option>
+                            <?php endforeach; ?>
+                        </select>
+                        <div class="invalid-feedback">Anggaran wajib dipilih.</div>
                     </div>
 
-                    <!-- Akun Anggaran -->
-                    <div class="mb-3">
-                        <label class="form-label">Akun Anggaran <span class="text-danger">*</span></label>
-                        <input type="text" name="akun_anggaran" class="form-control" placeholder="Masukkan Akun Anggaran" required>
-                        <div class="invalid-feedback">Akun Anggaran wajib diisi.</div>
-                    </div>
+                    <input type="hidden" name="kode_anggaran" id="kode_anggaran">
+                    <input type="hidden" name="akun_anggaran" id="akun_anggaran">
 
                     <!-- Kab/Kota Kegiatan (autocomplete) -->
                     <div class="mb-3">
@@ -105,7 +105,7 @@
                     <!-- Item Dasar Hukum -->
                     <div class="mb-3">
                         <label class="form-label">Dasar Hukum <span class="text-danger">*</span></label>
-                        <textarea name="dasar_hukum" class="form-control" placeholder="Masukkan Dasar Hukum"></textarea>
+                        <textarea name="dasar_hukum" class="form-control" placeholder="Jangan masukkan nomor urut, cukup pisahkan dengan ENTER"></textarea>
                     </div>
 
                     <!-- Gambaran Umum -->
@@ -162,29 +162,32 @@
 
                     <div class="mb-3">
                         <label class="form-label">Biaya</label>
-                        <input type="text" name="biaya" class="form-control" placeholder="Masukkan Biaya">
+                        <input type="text" name="biaya_display" id="biaya_display" class="form-control" placeholder="Rp. 0,-"autocomplete="off">
+
+                        <!-- nilai asli untuk POST -->
+                        <input type="hidden" name="biaya" id="biaya">
                     </div>
+
 
                     <div class="mb-3">
                         <label class="form-label">PPK</label>
-                        <input type="text" name="ppk" class="form-control" placeholder="Nama PPK">
+                        <select name="ppk" id="ppk" class="form-control"></select>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">NIP PPK</label>
-                        <input type="text" name="nip_ppk" class="form-control" placeholder="NIP PPK">
+                        <input type="text" name="nip_ppk" id="nip_ppk" class="form-control" readonly>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">Kepala</label>
-                        <input type="text" name="kepala" class="form-control" placeholder="Nama Kepala">
+                        <input type="text" name="kepala" class="form-control" value="<?= isset($kepala) ? $kepala->nama : '' ?>" readonly>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label">NIP Kepala</label>
-                        <input type="text" name="nip_kepala" class="form-control" placeholder="NIP Kepala">
+                        <input type="text" name="nip_kepala" class="form-control" value="<?= isset($kepala) ? $kepala->nip : '' ?>" readonly>
                     </div>
-
 
                     <button type="submit" class="btn btn-primary">
                         Generate DOCX
@@ -245,4 +248,83 @@
         }
     });
     
+    document.addEventListener('DOMContentLoaded', function () {
+        if (window.jQuery && $('#ppk').length) {
+            $('#ppk').select2({
+                placeholder: 'Pilih PPK...',
+                minimumInputLength: 1,
+                width: '100%',
+                ajax: {
+                    url: "<?= base_url('docxgenerator/search_ppk') ?>",
+                    dataType: 'json',
+                    delay: 250,
+                    data: function (params) {
+                        return { q: params.term };
+                    },
+                    processResults: function (data) {
+                        return { results: data };
+                    }
+                }
+            });
+
+            $('#ppk').on('select2:select', function (e) {
+                const d = e.params.data;
+                $('#nip_ppk').val(d.nip || '');
+            });
+
+            $('#ppk').on('select2:clear', function () {
+                $('#nip_ppk').val('');
+            });
+        }
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const display = document.getElementById('biaya_display');
+        const hidden  = document.getElementById('biaya');
+
+        display.addEventListener('input', function () {
+            let value = this.value.replace(/[^\d]/g, '');
+
+        // hilangkan leading zero
+            value = value.replace(/^0+(?=\d)/, '');
+
+            hidden.value = value;
+
+            if (value === '') {
+                this.value = '';
+                return;
+            }
+
+            this.value = formatRupiah(value);
+        });
+
+        display.addEventListener('paste', function (e) {
+            e.preventDefault();
+        });
+
+        function formatRupiah(angka) {
+            let numberString = angka.toString();
+            let sisa = numberString.length % 3;
+            let rupiah = numberString.substr(0, sisa);
+            let ribuan = numberString.substr(sisa).match(/\d{3}/g);
+
+            if (ribuan) {
+                let separator = sisa ? '.' : '';
+                rupiah += separator + ribuan.join('.');
+            }
+
+            return 'Rp. ' + rupiah;
+        }
+    });
+
+
+
+    document.getElementById('anggaran_id').addEventListener('change', function () {
+        const opt = this.options[this.selectedIndex];
+
+        document.getElementById('kode_anggaran').value = opt.dataset.kode || '';
+        document.getElementById('akun_anggaran').value = opt.dataset.nama || '';
+    });
+
+
 </script>

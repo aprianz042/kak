@@ -29,4 +29,71 @@ class Docxgenerator_model extends CI_Model {
         ->get()
         ->row_array();
     }
+
+    public function search_ppk($keyword = null, $limit = 20)
+    {
+        $this->db->where('role', 'ppk');
+
+        if ($keyword) {
+            $this->db->like('nama', $keyword);
+        }
+
+        $query = $this->db
+        ->order_by('nama', 'ASC')
+        ->limit((int)$limit)
+        ->get('pegawai')
+        ->result();
+
+        $result = [];
+        foreach ($query as $row) {
+            $result[] = [
+                'id'   => $row->id,
+                'text' => $row->nama,
+                'nip'  => $row->nip
+            ];
+        }
+
+        return $result;
+    }
+
+    public function get_ppk_by_id($id)
+    {
+        return $this->db
+        ->where('id', (int)$id)
+        ->where('role', 'ppk')
+        ->get('pegawai')
+        ->row_array();
+    }
+
+    public function get_kepala_default()
+    {
+        return $this->db
+        ->where('role', 'kepala')
+        ->limit(1)
+        ->get('pegawai')
+        ->row();
+    }
+
+
+    public function get_all_anggaran()
+    {
+        return $this->db
+        ->select('id, kode_akun, nama_kegiatan, pagu')
+        ->order_by('kode_akun', 'ASC')
+        ->get('anggaran')
+        ->result();
+    }
+
+    public function get_anggaran_by_id($id)
+    {
+        return $this->db
+        ->where('id', $id)
+        ->get('anggaran')
+        ->row();
+    }
+
+
+
 }
+
+

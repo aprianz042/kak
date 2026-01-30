@@ -14,15 +14,16 @@ class Docxgenerator extends Authenticated_Controller {
     {
         parent::__construct();
         $this->load->library('session');
-        $this->load->model('DOcxgenerator_model');
+        $this->load->model('Docxgenerator_model');
     }
 
 
     public function index()
     {
         $data['title'] = 'DOCX Generator';
-
-        $data['content'] = $this->load->view('docxgenerator_view', [], TRUE);
+        $data['kepala'] = $this->Docxgenerator_model->get_kepala_default();
+        $data['anggaran'] = $this->Docxgenerator_model->get_all_anggaran();
+        $data['content'] = $this->load->view('docxgenerator_view', $data, TRUE);
         $this->load->view('layouts/main', $data);
     }
 
@@ -39,7 +40,7 @@ class Docxgenerator extends Authenticated_Controller {
 
         $regency_id = $this->input->post('regency_id', true);
 
-        $wil = $this->DOcxgenerator_model->get_regency_with_province($regency_id);
+        $wil = $this->Docxgenerator_model->get_regency_with_province($regency_id);
         if (!$wil) {
             show_error('Kab/Kota tidak valid atau tidak ditemukan di database wilayah.');
         }
@@ -59,8 +60,15 @@ class Docxgenerator extends Authenticated_Controller {
         $vol = $this->input->post('vol', true);
         $satuan = $this->input->post('satuan', true);
         $biaya = $this->input->post('biaya', true);
-        $ppk = $this->input->post('ppk', true);
-        $nip_ppk = $this->input->post('nip_ppk', true);
+
+        $ppk_id = $this->input->post('ppk', true);
+        $ppk = $this->Docxgenerator_model->get_ppk_by_id($ppk_id);
+
+        if (!$ppk) {
+            show_error('PPK tidak valid atau tidak ditemukan');
+        }
+
+
         $kepala = $this->input->post('kepala', true);
         $nip_kepala = $this->input->post('nip_kepala', true);
 
@@ -217,8 +225,13 @@ class Docxgenerator extends Authenticated_Controller {
         $template->setValue('terbilang_total', $terbilang_total);
 
         $template->setValue('tanggal_buat', $tanggal_buat);
-        $template->setValue('nama_ppk', $ppk);
+
+/*        $template->setValue('nama_ppk', $ppk);
         $template->setValue('nip_ppk', $nip_ppk);
+*/
+        $template->setValue('nama_ppk', $ppk['nama']);
+        $template->setValue('nip_ppk', $ppk['nip']);
+
         $template->setValue('nama_kepala', $kepala);
         $template->setValue('nip_kepala', $nip_kepala);
 
@@ -297,7 +310,7 @@ class Docxgenerator extends Authenticated_Controller {
     public function search_regencies()
     {
         $q = $this->input->get('q', true);
-        $rows = $this->DOcxgenerator_model->search_regencies($q, 20);
+        $rows = $this->Docxgenerator_model->search_regencies($q, 20);
 
         $out = [];
         foreach ($rows as $r) 
@@ -377,6 +390,16 @@ class Docxgenerator extends Authenticated_Controller {
 
         $angka = preg_replace('/[^\d]/', '', (string)$angka);
         return number_format((float)$angka, 0, ',', '.');
+    }
+
+    public function search_ppk()
+    {
+        $q = $this->input->get('q', true);
+        $data = $this->Docxgenerator_model->search_ppk($q);
+
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
     }
 
 
