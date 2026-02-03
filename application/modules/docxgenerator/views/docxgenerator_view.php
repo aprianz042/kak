@@ -16,7 +16,7 @@
 
 <div class="row">
     <!-- Kolom kiri -->
-    <div class="col-md-6 mb-4">
+    <div class="col-md-12 mb-4">
         <div class="card shadow-sm">
             <div class="card-body">
                 <h4 class="card-title mb-3">Generate Dokumen DOCX</h4>

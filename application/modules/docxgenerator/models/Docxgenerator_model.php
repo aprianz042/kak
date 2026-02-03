@@ -92,6 +92,13 @@ class Docxgenerator_model extends CI_Model {
         ->row();
     }
 
+    public function save_document_data($data)
+    {
+        $this->db->insert('generated_documents', $data);
+        return $this->db->insert_id();  // Mengembalikan ID dari insert yang baru
+    }
+
+
 
 
 }

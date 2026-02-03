@@ -85,6 +85,39 @@ class Docxgenerator extends Authenticated_Controller {
 
         $template = new TemplateProcessor($templatePath);
 
+        // Proses untuk memasukkan data ke dalam database (sebelum pembuatan dokumen)
+        $documentData = [
+            'unit_organisasi' => $unit_organisasi,
+            'program' => $program,
+            'kegiatan' => $kegiatan,
+            'kro' => $kro,
+            'ro' => $ro,
+            'komponen' => $komponen,
+            'kode_anggaran' => $kode_anggaran,
+            'akun_anggaran' => $akun_anggaran,
+            'kota_kegiatan' => $kota_kegiatan,
+            'provinsi' => $provinsi,
+            'tahun_anggaran' => $tahun_anggaran,
+            'dasar_hukum' => $dasar_hukum,
+            'gambaran_umum' => $gambaran_umum,
+            'maksud_tujuan' => $maksud_tujuan,
+            'keluaran' => $keluaran,
+            'nama_kegiatan' => $nama_kegiatan,
+            'waktu' => $waktu,
+            'tanggal_bayar' => $tanggal_bayar,
+            'lokasi' => $lokasi,
+            'vol' => $vol,
+            'satuan' => $satuan,
+            'biaya' => $biaya,
+            'ppk_id' => $ppk_id,
+            'kepala' => $kepala,
+            'nip_kepala' => $nip_kepala,
+            'created_at' => date('Y-m-d H:i:s')
+        ];
+
+        // Simpan data dokumen ke dalam database
+        $documentId = $this->Docxgenerator_model->save_document_data($documentData);
+
         // ===== DASAR HUKUM =====
         $dashum = [];
         
