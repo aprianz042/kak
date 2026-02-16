@@ -1,25 +1,104 @@
 <?php if ($this->session->flashdata('success')): ?>
     <div class="alert alert-success">
         <?= $this->session->flashdata('success') ?>
+        <!--
         <hr class="my-2">
-        <a class="btn btn-sm btn-success"
-        href="<?= base_url('docxgenerator/download/'.$this->session->flashdata('file_docx')) ?>">
-        Download Dokumen DOCX
-    </a>
-    <a class="btn btn-sm btn-primary"
-    href="<?= base_url('docxgenerator/download_pdf/'.$this->session->flashdata('file_pdf')) ?>">
-    Download Dokumen PDF
-</a>
-</div>
+        <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download/'.$this->session->flashdata('file_docx')) ?>">
+            Download Dokumen DOCX
+        </a>
+         <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/download_pdf/'.$this->session->flashdata('file_pdf')) ?>">
+            Download Dokumen PDF
+        </a> -->
+    </div>
 <?php endif; ?>
 
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h3 class="h5 mb-0">Daftar Dokumen</h3>
+    <button type="button" class="btn btn-primary" onclick="openTambahDokumenModal()">
+        Tambah Dokumen
+    </button>
+</div>
 
-<div class="row">
-    <!-- Kolom kiri -->
-    <div class="col-md-12 mb-4">
-        <div class="card shadow-sm">
-            <div class="card-body">
-                <h4 class="card-title mb-3">Generate Dokumen DOCX</h4>
+<div id="message" class="mt-3 d-none"></div>
+
+
+<table class="table table-bordered table-striped">
+    <thead>
+        <tr>
+            <th>No</th>
+            <th>Unit Organisasi</th>
+            <th>Nama Kegiatan</th>
+            <th>Tahun</th>
+            <th>Kota Kegiatan</th>
+            <th>Provinsi</th>
+            <th>Kode Anggaran</th>
+            <th>Akun</th>
+            <th>File</th>
+            <th>Aksi</th>
+        </tr>
+    </thead>
+    <tbody>
+        <?php foreach ($documents as $i => $d): ?>
+            <tr>
+                <td><?= $i + 1 ?></td>
+                <td><?= htmlspecialchars($d->unit_organisasi) ?></td>
+                <td><?= htmlspecialchars($d->nama_kegiatan) ?></td>
+                <td><?= htmlspecialchars($d->tahun_anggaran) ?></td>
+                <td><?= htmlspecialchars($d->kota_kegiatan) ?></td>
+                <td><?= htmlspecialchars($d->provinsi) ?></td>
+                <td><?= htmlspecialchars($d->kode_anggaran) ?></td>
+                <td><?= htmlspecialchars($d->akun_anggaran) ?></td>
+                <td>
+                    <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download</a>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-delete" data-id="<?= $d->id ?>"data-nama="<?= htmlspecialchars($d->nama_kegiatan) ?>" data-bs-toggle="modal" data-bs-target="#deleteModal">
+                        Hapus
+                    </button>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
+</table>
+
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Konfirmasi Hapus</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <p>Yakin ingin menghapus dokumen berikut?</p>
+                <p class="text-danger" id="deleteDocName"></p>
+            </div>
+
+            <div class="modal-footer">
+                <form method="post" action="<?= base_url('docxgenerator/delete') ?>">
+                    <input type="hidden" name="id" id="deleteDocId">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                        Batal
+                    </button>
+                    <button type="submit" class="btn btn-danger">
+                        Ya, Hapus
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="tambahDokumenModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Tambah Dokumen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
 
                 <form method="post" action="<?= base_url('docxgenerator/generate') ?>" class="needs-validation" novalidate>
                     <!-- Unit Organisasi -->
@@ -196,8 +275,9 @@
             </div>
         </div>
     </div>
-
 </div>
+
+
 
 <script>
     (() => {
@@ -218,6 +298,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         if (window.jQuery && $('#regency_id').length) {
             $('#regency_id').select2({
+                dropdownParent: $('#tambahDokumenModal'), // ← INI KUNCI
                 placeholder: 'Ketik nama Kab/Kota...',
                 minimumInputLength: 2,
                 width: '100%',
@@ -235,6 +316,7 @@
                 }
             });
 
+
             $('#regency_id').on('select2:select', function (e) {
                 const d = e.params.data;
                 document.getElementById('provinsi').value = d.province || '';
@@ -251,6 +333,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         if (window.jQuery && $('#ppk').length) {
             $('#ppk').select2({
+                dropdownParent: $('#tambahDokumenModal'), // ← WAJIB
                 placeholder: 'Pilih PPK...',
                 minimumInputLength: 1,
                 width: '100%',
@@ -326,5 +409,49 @@
         document.getElementById('akun_anggaran').value = opt.dataset.nama || '';
     });
 
+    document.addEventListener('DOMContentLoaded', function () {
 
+        const tambahModal = new bootstrap.Modal(
+            document.getElementById('tambahDokumenModal')
+            );
+
+        window.openTambahDokumenModal = function () {
+            const form = document.querySelector('#tambahDokumenModal form');
+            form.reset();
+            form.classList.remove('was-validated');
+            tambahModal.show();
+        };
+
+        window.hapusDokumen = function (id) {
+            if (!confirm('Yakin hapus dokumen ini?')) return;
+
+            fetch("<?= base_url('docxgenerator/hapus/') ?>" + id)
+            .then(res => res.json())
+            .then(data => {
+                message.textContent = data.message;
+                message.className = data.status
+                ? 'alert alert-success mt-3'
+                : 'alert alert-danger mt-3';
+                message.classList.remove('d-none');
+
+                if (data.status) {
+                    setTimeout(() => location.reload(), 1000);
+                }
+            });
+        };
+
+    });
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const deleteButtons = document.querySelectorAll('.btn-delete');
+        const docIdInput = document.getElementById('deleteDocId');
+        const docNameText = document.getElementById('deleteDocName');
+
+        deleteButtons.forEach(btn => {
+            btn.addEventListener('click', function () {
+                docIdInput.value = this.dataset.id;
+                docNameText.textContent = this.dataset.nama;
+            });
+        });
+    });
 </script>

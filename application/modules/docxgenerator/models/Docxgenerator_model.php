@@ -3,6 +3,53 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Docxgenerator_model extends CI_Model {
 
+    protected $table = 'generated_documents';
+
+    /* =========================
+     * GET ALL DOCUMENTS
+     * ========================= */
+    public function get_all()
+    {
+        return $this->db
+        ->order_by('created_at', 'DESC')
+        ->get($this->table)
+        ->result();
+    }
+
+    /* =========================
+     * GET BY ID
+     * ========================= */
+    public function get_by_id($id)
+    {
+        return $this->db
+        ->where('id', $id)
+        ->get($this->table)
+        ->row();
+    }
+
+    /* =========================
+     * DELETE DOCUMENT
+     * ========================= */
+    public function delete($id)
+    {
+        return $this->db
+        ->where('id', $id)
+        ->delete($this->table);
+    }
+
+    /* =========================
+     * OPTIONAL: CHECK FILE EXIST
+     * ========================= */
+    public function get_files($id)
+    {
+        return $this->db
+        ->select('file_docx, file_pdf')
+        ->where('id', $id)
+        ->get($this->table)
+        ->row();
+    }
+
+
     public function search_regencies($q, $limit = 20)
     {
         $q = trim($q);
@@ -97,8 +144,6 @@ class Docxgenerator_model extends CI_Model {
         $this->db->insert('generated_documents', $data);
         return $this->db->insert_id();  // Mengembalikan ID dari insert yang baru
     }
-
-
 
 
 }

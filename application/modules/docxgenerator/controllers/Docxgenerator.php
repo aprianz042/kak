@@ -23,12 +23,16 @@ class Docxgenerator extends Authenticated_Controller {
         $data['title'] = 'DOCX Generator';
         $data['kepala'] = $this->Docxgenerator_model->get_kepala_default();
         $data['anggaran'] = $this->Docxgenerator_model->get_all_anggaran();
+        $data['documents'] = $this->Docxgenerator_model->get_all();
+
         $data['content'] = $this->load->view('docxgenerator_view', $data, TRUE);
         $this->load->view('layouts/main', $data);
     }
 
     public function generate()
     {
+        $baseName = 'dokumen_' . time();
+
         $unit_organisasi = $this->input->post('unit_organisasi', true);
         $program = $this->input->post('program', true);
         $kegiatan = $this->input->post('kegiatan', true);
@@ -112,7 +116,8 @@ class Docxgenerator extends Authenticated_Controller {
             'ppk_id' => $ppk_id,
             'kepala' => $kepala,
             'nip_kepala' => $nip_kepala,
-            'created_at' => date('Y-m-d H:i:s')
+            'created_at' => date('Y-m-d H:i:s'),
+            'file_doc' => $baseName
         ];
 
         // Simpan data dokumen ke dalam database
@@ -275,7 +280,6 @@ class Docxgenerator extends Authenticated_Controller {
             mkdir($outputDirDocx, 0777, true);
         }
 
-        $baseName = 'dokumen_' . time();
         $docxName = $baseName . '.docx';
         $docxPath = $outputDirDocx . $docxName;
 
@@ -308,6 +312,25 @@ class Docxgenerator extends Authenticated_Controller {
         $this->session->set_flashdata('file_pdf', $pdfName);
 
         redirect('docxgenerator');
+    }
+
+    public function download_file($filename)
+    {
+        $filename = basename($filename);
+        $downloadName = $filename . '.docx';
+
+        $path = FCPATH . 'storage/docx/' . $downloadName;
+
+        if (!file_exists($path)) {
+            show_404();
+        }
+
+        $this->load->helper('download');
+
+    // INI KUNCINYA
+        $data = file_get_contents($path);
+
+        force_download($downloadName, $data);
     }
 
     public function download($file)
@@ -433,6 +456,32 @@ class Docxgenerator extends Authenticated_Controller {
         $this->output
         ->set_content_type('application/json')
         ->set_output(json_encode($data));
+    }
+
+    public function delete()
+    {
+        $id = (int) $this->input->post('id');
+
+        if (!$id) {
+            show_404();
+        }
+
+        $doc = $this->Docxgenerator_model->get_by_id($id);
+        if (!$doc) {
+            show_404();
+        }
+
+    // hapus file fisik
+        $filePath = FCPATH . 'storage/docx/' . $doc->file_doc . '.docx';
+        if (file_exists($filePath)) {
+            unlink($filePath);
+        }
+
+    // hapus DB
+        $this->Docxgenerator_model->delete($id);
+
+        $this->session->set_flashdata('success', 'Dokumen berhasil dihapus');
+        redirect('docxgenerator');
     }
 
 
