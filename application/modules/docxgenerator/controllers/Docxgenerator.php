@@ -117,7 +117,9 @@ class Docxgenerator extends Authenticated_Controller {
             'kepala' => $kepala,
             'nip_kepala' => $nip_kepala,
             'created_at' => date('Y-m-d H:i:s'),
-            'file_doc' => $baseName
+            'file_doc' => $baseName,
+            'nip_creator' => $this->session->userdata('nip'),
+            'status' => 'draft'
         ];
 
         // Simpan data dokumen ke dalam database
@@ -483,6 +485,90 @@ class Docxgenerator extends Authenticated_Controller {
         $this->session->set_flashdata('success', 'Dokumen berhasil dihapus');
         redirect('docxgenerator');
     }
+
+    public function pengajuan($id_doc)
+    {
+        // ambil user login
+        $nip = $this->session->userdata('nip');
+
+        // ambil dokumen berdasarkan file_doc
+        $dokumen = $this->Docxgenerator_model->getByFile($id_doc);
+
+        if (!$dokumen) {
+            show_error('Dokumen tidak ditemukan');
+        }
+
+        // validasi status
+        if ($dokumen->status !== 'draft') {
+            show_error('Dokumen tidak dapat diajukan');
+        }
+
+        // tentukan penerima (misal supervisor)
+        $penerima = $this->Docxgenerator_model->getPenerimaByDokumen($dokumen->id);
+
+        $this->db->trans_begin();
+
+        // update status dokumen
+        $this->Docxgenerator_model->updateStatus($dokumen->id, 'ajuan_baru');
+
+        // insert log
+        $this->Docxgenerator_model->insertLog([
+            'id_dokumen' => $dokumen->id,
+            'pengirim'   => $nip,
+            'penerima'   => $penerima->nip,
+            'status'     => 'ajuan_baru',
+            'pesan'      => 'Dokumen diajukan untuk direview'
+        ]);
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('danger', 'Gagal pengajuan dokumen');
+            redirect('docxgenerator');
+        } else {
+            $this->db->trans_commit();
+            $this->session->set_flashdata('success', 'Dokumen berhasil diajukan');
+            redirect('docxgenerator'); // sesuaikan halaman tujuan
+        }
+    }
+
+    public function view_docx($filename)
+    {
+        $filename = basename($filename) . '.docx';
+
+        $token = $this->input->get('token');
+
+    // validasi token
+        if (!$this->isValidToken($filename, $token)) {
+            show_error('Unauthorized', 401);
+        }
+
+        $path = FCPATH . 'storage/docx/' . $filename;
+
+        if (!file_exists($path)) {
+            show_404();
+        }
+
+        header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
+        header('Content-Disposition: inline; filename="'.$filename.'"');
+        header('Content-Length: ' . filesize($path));
+
+        readfile($path);
+        exit;
+    }
+
+    private function isValidToken($filename, $token)
+    {
+        if (!$token) return false;
+
+        $secret = 'KUNCI_RAHASIA_APP'; // simpan di config
+        $expected = hash_hmac('sha256', $filename, $secret);
+
+        return hash_equals($expected, $token);
+    }
+
+
+
+
 
 
 }

@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Feb 03, 2026 at 09:51 AM
+-- Generation Time: Feb 17, 2026 at 12:11 PM
 -- Server version: 10.4.22-MariaDB
 -- PHP Version: 7.4.27
 
@@ -91,15 +91,42 @@ CREATE TABLE `generated_documents` (
   `ppk_id` int(11) NOT NULL,
   `kepala` varchar(255) DEFAULT NULL,
   `nip_kepala` varchar(255) DEFAULT NULL,
-  `created_at` datetime DEFAULT NULL
+  `file_doc` varchar(32) NOT NULL,
+  `created_at` datetime DEFAULT NULL,
+  `updated_at` datetime DEFAULT NULL,
+  `nip_creator` int(3) NOT NULL,
+  `status` varchar(32) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
 --
 -- Dumping data for table `generated_documents`
 --
 
-INSERT INTO `generated_documents` (`id`, `unit_organisasi`, `program`, `kegiatan`, `kro`, `ro`, `komponen`, `kode_anggaran`, `akun_anggaran`, `kota_kegiatan`, `provinsi`, `tahun_anggaran`, `dasar_hukum`, `gambaran_umum`, `maksud_tujuan`, `keluaran`, `nama_kegiatan`, `waktu`, `tanggal_bayar`, `lokasi`, `vol`, `satuan`, `biaya`, `ppk_id`, `kepala`, `nip_kepala`, `created_at`) VALUES
-(1, 'BPS', 'Program 1', 'Kegiatan 1', 'KRO 1', 'RO 1', 'Komponen 1', '522114', 'Belanja Listrik', 'KOTA PONTIANAK', 'KALIMANTAN BARAT', '2026', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\r\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\r\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Belanja air minum', 'Januari sd Desember 2026', '20', 'BPS Kalbar', '1', 'KBK', '34000000', 16, 'Nama Kepala BPS, S.Tr.Stat', '1987654321', '2026-02-03 05:05:44');
+INSERT INTO `generated_documents` (`id`, `unit_organisasi`, `program`, `kegiatan`, `kro`, `ro`, `komponen`, `kode_anggaran`, `akun_anggaran`, `kota_kegiatan`, `provinsi`, `tahun_anggaran`, `dasar_hukum`, `gambaran_umum`, `maksud_tujuan`, `keluaran`, `nama_kegiatan`, `waktu`, `tanggal_bayar`, `lokasi`, `vol`, `satuan`, `biaya`, `ppk_id`, `kepala`, `nip_kepala`, `file_doc`, `created_at`, `updated_at`, `nip_creator`, `status`) VALUES
+(6, 'BPS2', 'Program 1', 'Kegiatan 1', 'KRO 2', 'RO 2', 'Komponen 2', '522115', 'Belanja Jasa Telekomunikasi', 'KAB. PASAMAN BARAT', 'SUMATERA BARAT', '2026', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\r\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.\r\nLorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry\'s standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.', 'Belanja internet', 'Januari sd Desember 2026', '20', 'BPS Kalbar', '1', 'KBK', '9000000', 16, 'Nama Kepala BPS, S.Tr.Stat', '1987654321', 'dokumen_1771321741', '2026-02-17 10:49:01', '2026-02-17 11:27:08', 123456789, 'ajuan_baru');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `log_dokumen`
+--
+
+CREATE TABLE `log_dokumen` (
+  `id_log` int(11) NOT NULL,
+  `id_dokumen` int(11) NOT NULL,
+  `pengirim` int(11) NOT NULL,
+  `penerima` int(11) DEFAULT NULL,
+  `status` enum('ajuan_baru','revisi','acc','ditolak') NOT NULL,
+  `pesan` text DEFAULT NULL,
+  `created_at` datetime DEFAULT current_timestamp()
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+--
+-- Dumping data for table `log_dokumen`
+--
+
+INSERT INTO `log_dokumen` (`id_log`, `id_dokumen`, `pengirim`, `penerima`, `status`, `pesan`, `created_at`) VALUES
+(1, 6, 123456789, 778899, 'ajuan_baru', 'Dokumen diajukan untuk direview', '2026-02-17 17:27:08');
 
 -- --------------------------------------------------------
 
@@ -91878,6 +91905,15 @@ ALTER TABLE `generated_documents`
   ADD PRIMARY KEY (`id`);
 
 --
+-- Indexes for table `log_dokumen`
+--
+ALTER TABLE `log_dokumen`
+  ADD PRIMARY KEY (`id_log`),
+  ADD KEY `idx_dokumen` (`id_dokumen`),
+  ADD KEY `idx_pengirim` (`pengirim`),
+  ADD KEY `idx_penerima` (`penerima`);
+
+--
 -- Indexes for table `pegawai`
 --
 ALTER TABLE `pegawai`
@@ -91932,7 +91968,13 @@ ALTER TABLE `dasar_hukum`
 -- AUTO_INCREMENT for table `generated_documents`
 --
 ALTER TABLE `generated_documents`
-  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+
+--
+-- AUTO_INCREMENT for table `log_dokumen`
+--
+ALTER TABLE `log_dokumen`
+  MODIFY `id_log` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 
 --
 -- AUTO_INCREMENT for table `pegawai`
@@ -91943,6 +91985,12 @@ ALTER TABLE `pegawai`
 --
 -- Constraints for dumped tables
 --
+
+--
+-- Constraints for table `log_dokumen`
+--
+ALTER TABLE `log_dokumen`
+  ADD CONSTRAINT `fk_log_generated_documents` FOREIGN KEY (`id_dokumen`) REFERENCES `generated_documents` (`id`) ON DELETE CASCADE;
 
 --
 -- Constraints for table `reg_districts`

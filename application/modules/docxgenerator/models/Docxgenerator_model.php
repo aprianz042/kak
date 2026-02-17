@@ -145,6 +145,48 @@ class Docxgenerator_model extends CI_Model {
         return $this->db->insert_id();  // Mengembalikan ID dari insert yang baru
     }
 
+    public function getByFile($id)
+    {
+        return $this->db
+        ->where('id', $id)
+        ->get('generated_documents')
+        ->row();
+    }
+
+    public function getPenerimaByDokumen($id_dokumen)
+    {
+        return $this->db
+        ->select('p.nip')
+        ->from('generated_documents gd')
+        ->join('pegawai p', 'p.id = gd.ppk_id')
+        ->where('gd.id', $id_dokumen)
+        ->get()
+        ->row();
+    }
+
+
+
+    public function updateStatus($id_dokumen, $status)
+    {
+        return $this->db
+        ->where('id', $id_dokumen)
+        ->update('generated_documents', [
+            'status' => $status,
+            'updated_at' => date('Y-m-d H:i:s')
+        ]);
+    }
+
+    public function insertLog($data)
+    {
+        return $this->db->insert('log_dokumen', [
+            'id_dokumen' => $data['id_dokumen'],
+            'pengirim'   => $data['pengirim'],
+            'penerima'   => $data['penerima'],
+            'status'     => $data['status'],
+            'pesan'      => $data['pesan']
+        ]);
+    }
+
 
 }
 

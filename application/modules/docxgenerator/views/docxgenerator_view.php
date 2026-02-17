@@ -33,8 +33,11 @@
             <th>Provinsi</th>
             <th>Kode Anggaran</th>
             <th>Akun</th>
+            <th>Pembuat</th>
             <th>File</th>
             <th>Aksi</th>
+            <th>Pengajuan</th>
+            <th>View</th>
         </tr>
     </thead>
     <tbody>
@@ -48,6 +51,7 @@
                 <td><?= htmlspecialchars($d->provinsi) ?></td>
                 <td><?= htmlspecialchars($d->kode_anggaran) ?></td>
                 <td><?= htmlspecialchars($d->akun_anggaran) ?></td>
+                <td><?= htmlspecialchars($d->nip_creator) ?></td>
                 <td>
                     <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download</a>
                 </td>
@@ -56,10 +60,48 @@
                         Hapus
                     </button>
                 </td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
+
+                <td>
+                    <?php if ($d->status === 'draft'): ?>
+                        <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/pengajuan/'.$d->id) ?>">Ajukan Draft</a>
+                    <?php else: ?>
+                        <span><?= htmlspecialchars($d->status) ?></span>
+                    <?php endif; ?>
+                </td>
+                <td>
+                    <button class="btn btn-sm btn-info"
+                    data-bs-toggle="modal"
+                    data-bs-target="#docxModal"
+                    onclick="openDocxViewer('<?= $d->file_doc ?>')">
+                    Lihat Dokumen
+                </button>
+            </td>
+
+        </tr>
+    <?php endforeach; ?>
+</tbody>
 </table>
+
+<div class="modal fade" id="docxModal" tabindex="-1">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5 class="modal-title">Preview Dokumen</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body p-0">
+                <iframe id="docxViewer"
+                style="width:100%; height:80vh;"
+                frameborder="0">
+            </iframe>
+        </div>
+
+    </div>
+</div>
+</div>
+
 
 <div class="modal fade" id="deleteModal" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
@@ -454,4 +496,26 @@
             });
         });
     });
+
+    function openDocxViewer(fileName) {
+
+        const token = "<?= hash_hmac(
+            'sha256',
+            $d->file_doc . '.docx',
+            'KUNCI_RAHASIA_APP'
+            ) ?>";
+
+        const fileUrl =
+        "<?= base_url('docxgenerator/view_docx/') ?>" +
+        fileName + "?token=" + token;
+
+        const viewerUrl =
+        "https://docs.google.com/gview?embedded=true&url=" +
+        encodeURIComponent(fileUrl);
+
+        document.getElementById('docxViewer').src = viewerUrl;
+    }
+
+
+
 </script>
