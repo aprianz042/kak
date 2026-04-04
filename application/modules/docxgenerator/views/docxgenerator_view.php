@@ -34,6 +34,7 @@
             <th>Kode Anggaran</th>
             <th>Akun</th>
             <th>Pembuat</th>
+            <th>PPK</th>
             <th>File</th>
             <th>Aksi</th>
             <th>Pengajuan</th>
@@ -52,6 +53,7 @@
                 <td><?= htmlspecialchars($d->kode_anggaran) ?></td>
                 <td><?= htmlspecialchars($d->akun_anggaran) ?></td>
                 <td><?= htmlspecialchars($d->nip_creator) ?></td>
+                <td><?= htmlspecialchars($d->ppk_id) ?></td>
                 <td>
                     <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download</a>
                 </td>
