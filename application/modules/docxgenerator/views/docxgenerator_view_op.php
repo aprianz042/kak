@@ -66,22 +66,20 @@
                 <td>
                     <?php if ($d->status === 'draft'): ?>
                         <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/pengajuan/'.$d->id) ?>">Ajukan Draft</a>
+                    <?php elseif ($d->status === 'revisi'): ?>
+                        <button class="btn btn-sm btn-warning btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">TL</button>
                     <?php else: ?>
                         <span><?= htmlspecialchars($d->status) ?></span>
                     <?php endif; ?>
                 </td>
+                
                 <td>
-                    <button class="btn btn-sm btn-info"
-                    data-bs-toggle="modal"
-                    data-bs-target="#docxModal"
-                    onclick="openDocxViewer('<?= $d->file_doc ?>')">
-                    Lihat Dokumen
-                </button>
-            </td>
+                    <button class="btn btn-sm btn-info" data-bs-toggle="modal" data-bs-target="#docxModal" onclick="openDocxViewer('<?= $d->file_doc ?>')">Lihat Dokumen</button>
+                </td>
 
-        </tr>
-    <?php endforeach; ?>
-</tbody>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
 
 <div class="modal fade" id="docxModal" tabindex="-1">
@@ -317,6 +315,57 @@
                     </button>
                 </form>
             </div>
+        </div>
+    </div>
+</div>
+
+
+<!-- MODAL -->
+<div class="modal fade" id="tlModal">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+
+            <div class="modal-header">
+                <h5>Timeline Dokumen</h5>
+                <button class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+
+            <div class="modal-body">
+                <!-- ALERT -->
+                <div id="tl_alert" class="alert d-none"></div>
+
+                <!-- TIMELINE -->
+                <div id="logContainer" class="mb-4"></div>
+
+
+                <!-- TIMELINE -->
+                <div id="logContainer" class="mb-4"></div>
+
+                <hr>
+
+                <!-- FORM -->
+                <form id="formTL">
+                    <input type="hidden" name="id_dokumen" id="tl_id">
+
+                    <div class="mb-3">
+                        <label>Tindak Lanjut</label>
+                        <select name="aksi" id="tl_status" class="form-control" required>
+                            <option value="">-- pilih --</option>
+                            <option value="revisi">Revisi</option>
+                            <option value="disetujui">ACC</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3 d-none" id="wrap_pesan">
+                        <label>Pesan Revisi</label>
+                        <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
+                    </div>
+
+                    <button class="btn btn-primary w-100">Kirim</button>
+                </form>
+
+            </div>
+
         </div>
     </div>
 </div>

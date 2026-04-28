@@ -604,30 +604,29 @@ class Docxgenerator extends Authenticated_Controller {
     public function tindak_lanjut()
     {
         $id_dokumen = (int) $this->input->post('id_dokumen');
-        $aksi       = $this->input->post('aksi'); // revisi / disetujui
+        $aksi       = $this->input->post('aksi');
         $pesan      = $this->input->post('pesan');
 
         $nip_login = $this->session->userdata('nip');
 
         if (!$id_dokumen || !$aksi) {
-            show_404();
+            echo json_encode(['status'=>false, 'message'=>'Data tidak valid']);
+            return;
         }
 
         $dokumen = $this->Docxgenerator_model->get_by_id($id_dokumen);
 
         if (!$dokumen) {
-            show_error('Dokumen tidak ditemukan');
+            echo json_encode(['status'=>false, 'message'=>'Dokumen tidak ditemukan']);
+            return;
         }
 
-        // tentukan penerima (dibalik dari sebelumnya)
         $penerima = $this->Docxgenerator_model->getPengirimTerakhir($id_dokumen);
 
         $this->db->trans_begin();
 
-        // update status dokumen
         $this->Docxgenerator_model->updateStatus($id_dokumen, $aksi);
 
-        // insert log
         $this->Docxgenerator_model->insertLog([
             'id_dokumen' => $id_dokumen,
             'pengirim'   => $nip_login,
@@ -638,14 +637,19 @@ class Docxgenerator extends Authenticated_Controller {
 
         if ($this->db->trans_status() === FALSE) {
             $this->db->trans_rollback();
-            $this->session->set_flashdata('danger', 'Gagal tindak lanjut');
+
+            echo json_encode([
+                'status' => false,
+                'message' => 'Gagal tindak lanjut'
+            ]);
         } else {
             $this->db->trans_commit();
-            $this->session->set_flashdata('success', 'Tindak lanjut berhasil');
+
+            echo json_encode([
+                'status' => true,
+                'message' => 'Berhasil'
+            ]);
         }
-
-        redirect('docxgenerator');
     }
-
 
 }

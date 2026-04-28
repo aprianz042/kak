@@ -39,24 +39,19 @@
                 <td><?= $d->nip_creator ?></td>
                 <td>
                     <a class="btn btn-sm btn-success"
-                    href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">
-                    Download
-                </a>
-            </td>
+                        href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">
+                        Download
+                    </a>
+                </td>
 
-            <td>
-                <button class="btn btn-sm btn-danger btn-log"
-                data-id="<?= $d->id ?>"
-                data-bs-toggle="modal"
-                data-bs-target="#tlModal">
-                Tindak Lanjut
-            </button>
-        </td>
+                <td>
+                    <button class="btn btn-sm btn-danger btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">Tindak Lanjut</button>
+                </td>
 
-        <td><?= $d->status ?></td>
-    </tr>
-<?php endforeach; ?>
-</tbody>
+                <td><?= $d->status ?></td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
 
 <!-- MODAL -->
@@ -70,6 +65,12 @@
             </div>
 
             <div class="modal-body">
+                <!-- ALERT -->
+                <div id="tl_alert" class="alert d-none"></div>
+
+                <!-- TIMELINE -->
+                <div id="logContainer" class="mb-4"></div>
+
 
                 <!-- TIMELINE -->
                 <div id="logContainer" class="mb-4"></div>
@@ -187,27 +188,60 @@
             e.preventDefault();
 
             const formData = new FormData(this);
+            const alertBox = document.getElementById('tl_alert');
 
             fetch("<?= base_url('docxgenerator/tindak_lanjut') ?>", {
                 method:'POST',
                 body:formData
             })
-            .then(res=>res.json())
-            .then(res=>{
+            .then(res => res.json())
+            .then(res => {
+
+                // tampilkan alert
+                alertBox.classList.remove('d-none');
+                alertBox.classList.remove('alert-success','alert-danger');
 
                 if(res.status){
 
-                    const id = formData.get('id_dokumen');
+                    alertBox.classList.add('alert-success');
+                    alertBox.innerText = 'Berhasil diproses';
 
-                // reload log TANPA klik ulang tombol
+                    const id = formData.get('id_dokumen');
                     loadLog(id);
 
                     document.getElementById('tl_pesan').value = '';
 
                 } else {
-                    alert('Gagal');
+
+                    alertBox.classList.add('alert-danger');
+                    alertBox.innerText = res.message || 'Gagal diproses';
                 }
 
+                // 🔥 tunggu 2 detik lalu tutup modal
+                setTimeout(() => {
+
+                    const modalEl = document.getElementById('tlModal');
+                    let modal = bootstrap.Modal.getInstance(modalEl);
+
+                    if (!modal) {
+                        modal = new bootstrap.Modal(modalEl);
+                    }
+
+                    modal.hide();
+
+                    // reset alert
+                    alertBox.classList.add('d-none');
+                    alertBox.innerText = '';
+
+                }, 2000);
+
+            })
+            .catch(err => {
+                console.error(err);
+
+                alertBox.classList.remove('d-none');
+                alertBox.classList.add('alert-danger');
+                alertBox.innerText = 'Terjadi kesalahan server';
             });
         });
 
