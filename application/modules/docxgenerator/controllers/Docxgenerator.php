@@ -20,12 +20,38 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function index()
     {
+        $id_user = $this->session->userdata('user_id');
+        $nip = $this->session->userdata('nip');
+        $role = $this->session->userdata('role');
         $data['title'] = 'DOCX Generator';
         $data['kepala'] = $this->Docxgenerator_model->get_kepala_default();
         $data['anggaran'] = $this->Docxgenerator_model->get_all_anggaran();
-        $data['documents'] = $this->Docxgenerator_model->get_all();
 
-        $data['content'] = $this->load->view('docxgenerator_view', $data, TRUE);
+
+        if ($role == "operator") 
+        {
+            $data['documents'] = $this->Docxgenerator_model->get_doc_user($nip);            
+            $data['content'] = $this->load->view('docxgenerator_view_op', $data, TRUE);
+        }
+        elseif ($role == "ppk")
+        {
+            $data['documents'] = $this->Docxgenerator_model->get_doc_ppk($id_user);
+            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
+        }
+        elseif ($role == "kepala")
+        {
+            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
+        }
+        elseif ($role == "admin")
+        {
+            $data['documents'] = $this->Docxgenerator_model->get_all(); 
+            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
+        }
+        else
+        {
+            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
+        }
+
         $this->load->view('layouts/main', $data);
     }
 
@@ -566,9 +592,60 @@ class Docxgenerator extends Authenticated_Controller {
         return hash_equals($expected, $token);
     }
 
+    public function get_log($id)
+    {
+        $data = $this->Docxgenerator_model->get_logs_dokumen($id);
 
+        $this->output
+        ->set_content_type('application/json')
+        ->set_output(json_encode($data));
+    }
 
+    public function tindak_lanjut()
+    {
+        $id_dokumen = (int) $this->input->post('id_dokumen');
+        $aksi       = $this->input->post('aksi'); // revisi / disetujui
+        $pesan      = $this->input->post('pesan');
 
+        $nip_login = $this->session->userdata('nip');
+
+        if (!$id_dokumen || !$aksi) {
+            show_404();
+        }
+
+        $dokumen = $this->Docxgenerator_model->get_by_id($id_dokumen);
+
+        if (!$dokumen) {
+            show_error('Dokumen tidak ditemukan');
+        }
+
+        // tentukan penerima (dibalik dari sebelumnya)
+        $penerima = $this->Docxgenerator_model->getPengirimTerakhir($id_dokumen);
+
+        $this->db->trans_begin();
+
+        // update status dokumen
+        $this->Docxgenerator_model->updateStatus($id_dokumen, $aksi);
+
+        // insert log
+        $this->Docxgenerator_model->insertLog([
+            'id_dokumen' => $id_dokumen,
+            'pengirim'   => $nip_login,
+            'penerima'   => $penerima ? $penerima->pengirim : null,
+            'status'     => $aksi,
+            'pesan'      => $pesan
+        ]);
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            $this->session->set_flashdata('danger', 'Gagal tindak lanjut');
+        } else {
+            $this->db->trans_commit();
+            $this->session->set_flashdata('success', 'Tindak lanjut berhasil');
+        }
+
+        redirect('docxgenerator');
+    }
 
 
 }

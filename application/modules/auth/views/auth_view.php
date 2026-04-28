@@ -4,6 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Sistem</title>
+    <link rel="icon" type="image/png" href="<?= base_url('assets/images/pavicon.png') ?>">
+
 
     <!-- CSS kamu TETAP -->
     <style>
@@ -40,38 +42,38 @@
 </head>
 <body>
 
-<div class="login-container">
-    <div class="login-header">
-        <h1>Selamat Datang</h1>
-        <p>Silakan login untuk melanjutkan</p>
+    <div class="login-container">
+        <div class="login-header">
+            <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="img-fluid mx-auto d-block mb-3" style="max-width: 60%;">
+            <p>Silakan login untuk melanjutkan</p>
+        </div>
+
+        <div class="login-body">
+
+            <!-- ALERT ERROR DARI CI -->
+            <?php if ($this->session->flashdata('error')): ?>
+                <script>
+                    alert("<?= $this->session->flashdata('error'); ?>");
+                </script>
+            <?php endif; ?>
+
+            <!-- FORM LOGIN (NIP + PASSWORD) -->
+            <form method="post" action="<?= site_url('auth/do_login') ?>">
+                <div class="form-group">
+                    <label>NIP</label>
+                    <input type="text" name="nip" required placeholder="Masukkan NIP Pegawai">
+                </div>
+
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="pass" required placeholder="Masukkan Password">
+                </div>
+
+                <button type="submit" class="btn-login">Login</button>
+            </form>
+
+        </div>
     </div>
-
-    <div class="login-body">
-
-        <!-- ALERT ERROR DARI CI -->
-        <?php if ($this->session->flashdata('error')): ?>
-            <script>
-                alert("<?= $this->session->flashdata('error'); ?>");
-            </script>
-        <?php endif; ?>
-
-        <!-- FORM LOGIN (NIP + PASSWORD) -->
-        <form method="post" action="<?= site_url('auth/do_login') ?>">
-            <div class="form-group">
-                <label>NIP</label>
-                <input type="text" name="nip" required placeholder="Masukkan NIP Pegawai">
-            </div>
-
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" name="pass" required placeholder="Masukkan Password">
-            </div>
-
-            <button type="submit" class="btn-login">Login</button>
-        </form>
-
-    </div>
-</div>
 
 </body>
 </html>

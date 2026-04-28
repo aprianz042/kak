@@ -16,6 +16,25 @@ class Docxgenerator_model extends CI_Model {
         ->result();
     }
 
+    public function get_doc_user($nip)
+    {
+        return $this->db
+        ->where('nip_creator', $nip)
+        ->order_by('created_at', 'DESC')
+        ->get($this->table)
+        ->result();
+    }
+
+    public function get_doc_ppk($id)
+    {
+        return $this->db
+        ->where('ppk_id', $id)
+        ->order_by('created_at', 'DESC')
+        ->get($this->table)
+        ->result();
+    }
+
+
     /* =========================
      * GET BY ID
      * ========================= */
@@ -185,6 +204,25 @@ class Docxgenerator_model extends CI_Model {
             'status'     => $data['status'],
             'pesan'      => $data['pesan']
         ]);
+    }
+
+    public function get_logs_dokumen($id)
+    {
+        return $this->db
+        ->where('id_dokumen', $id)
+        ->order_by('created_at', 'ASC')
+        ->get('log_dokumen')
+        ->result();
+    }
+
+    public function getPengirimTerakhir($id_dokumen)
+    {
+        return $this->db
+        ->where('id_dokumen', $id_dokumen)
+        ->order_by('created_at', 'DESC')
+        ->limit(1)
+        ->get('log_dokumen')
+        ->row();
     }
 
 
