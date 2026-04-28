@@ -342,6 +342,21 @@ class Docxgenerator extends Authenticated_Controller {
         redirect('docxgenerator');
     }
 
+    public function timeline_dok($id)
+    {
+        $id_user = $this->session->userdata('user_id');
+        $nip = $this->session->userdata('nip');
+        $role = $this->session->userdata('role');
+        $data['title'] = 'DOCX Generator';
+        $data['timeline'] = $this->Docxgenerator_model->get_logs_dokumen($id);
+        $data['kepala'] = $this->Docxgenerator_model->get_kepala_default();
+        $data['documents'] = $this->Docxgenerator_model->get_doc_by_id($id);   
+        $data['anggaran'] = $this->Docxgenerator_model->get_all_anggaran();
+        $data['content'] = $this->load->view('timeline', $data, TRUE);
+        $this->load->view('layouts/main', $data);
+    }
+
+
     public function download_file($filename)
     {
         $filename = basename($filename);

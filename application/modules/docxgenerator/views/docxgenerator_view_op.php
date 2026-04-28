@@ -67,7 +67,7 @@
                     <?php if ($d->status === 'draft'): ?>
                         <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/pengajuan/'.$d->id) ?>">Ajukan Draft</a>
                     <?php elseif ($d->status === 'revisi'): ?>
-                        <button class="btn btn-sm btn-warning btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">TL</button>
+                        <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/timeline_dok/'.$d->id) ?>">Revisi</a>
                     <?php else: ?>
                         <span><?= htmlspecialchars($d->status) ?></span>
                     <?php endif; ?>

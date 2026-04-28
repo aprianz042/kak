@@ -16,6 +16,15 @@ class Docxgenerator_model extends CI_Model {
         ->result();
     }
 
+    public function get_doc_by_id($id)
+    {
+        return $this->db
+        ->where('id', $id)
+        ->order_by('created_at', 'DESC')
+        ->get($this->table)
+        ->result();
+    }
+
     public function get_doc_user($nip)
     {
         return $this->db

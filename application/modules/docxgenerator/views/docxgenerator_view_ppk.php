@@ -71,10 +71,6 @@
                 <!-- TIMELINE -->
                 <div id="logContainer" class="mb-4"></div>
 
-
-                <!-- TIMELINE -->
-                <div id="logContainer" class="mb-4"></div>
-
                 <hr>
 
                 <!-- FORM -->
