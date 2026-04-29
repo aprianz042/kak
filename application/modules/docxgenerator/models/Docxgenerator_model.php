@@ -16,13 +16,33 @@ class Docxgenerator_model extends CI_Model {
         ->result();
     }
 
-    public function get_doc_by_id($id)
+/*    public function get_doc_by_id($id)
     {
         return $this->db
         ->where('id', $id)
         ->order_by('created_at', 'DESC')
         ->get($this->table)
         ->result();
+    }
+
+*/    
+    public function get_doc_by_id($id)
+    {
+        return $this->db
+            ->select('
+                generated_documents.*,
+                pegawai.nama as nama_ppk,
+                pegawai.nip as nip_ppk,
+                anggaran.kode_akun,
+                anggaran.nama_kegiatan as nama_anggaran
+            ')
+            ->from('generated_documents')
+            ->join('pegawai', 'pegawai.id = generated_documents.ppk_id', 'left')
+            ->join('anggaran', 'anggaran.kode_akun = generated_documents.kode_anggaran', 'left')
+            ->where('generated_documents.id', $id)
+            ->order_by('generated_documents.created_at', 'DESC')
+            ->get()
+            ->result();
     }
 
     public function get_doc_user($nip)
@@ -232,6 +252,17 @@ class Docxgenerator_model extends CI_Model {
         ->limit(1)
         ->get('log_dokumen')
         ->row();
+    }
+
+    public function update_document($id, $data)
+    {
+        $this->db->where('id', $id);
+        return $this->db->update('generated_documents', $data); // sesuaikan nama tabel
+    }
+
+    public function get_document_by_id($id)
+    {
+        return $this->db->get_where('generated_documents', ['id' => $id])->row();
     }
 
 

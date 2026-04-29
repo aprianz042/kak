@@ -46,202 +46,198 @@ foreach ($timeline as $i => $d) {
         </div>
 
         <?php if ($d->status === 'revisi' && $i === $lastRevisiIndex): ?>
-        <div class="mt-2">
-            <button class="btn btn-sm btn-warning" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
-                Upload Revisi
+            <div class="mt-2">
+                <button class="btn btn-sm btn-success" 
+                data-bs-toggle="modal" 
+                data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
+                <i class="fa fa-edit"></i> Revisi
             </button>
         </div>
-        <?php endif; ?>
-    </div>
+    <?php endif; ?>
+</div>
 
 <?php endforeach; ?>
+<?php foreach ($documents as $doc): ?>
+
+    <div class="modal fade" id="revisiModal<?= $doc->id ?>" tabindex="-1">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <h5 class="modal-title">Revisi Dokumen</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <div class="modal-body">
+
+                    <form method="post" action="<?= base_url('docxgenerator/revisi') ?>" class="needs-validation" novalidate>
+
+                        <input type="hidden" name="id_dokumen" value="<?= $doc->id ?>">
+
+                        <!-- Unit Organisasi -->
+                        <div class="mb-3">
+                            <label class="form-label">Unit Organisasi</label>
+                            <input type="text" name="unit_organisasi" class="form-control" value="<?= $doc->unit_organisasi ?? '' ?>" required>
+                        </div>
+
+                        <!-- Program -->
+                        <div class="mb-3">
+                            <label class="form-label">Program</label>
+                            <input type="text" name="program" class="form-control" value="<?= $doc->program ?? '' ?>" required>
+                        </div>
+
+                        <!-- Kegiatan -->
+                        <div class="mb-3">
+                            <label class="form-label">Kegiatan</label>
+                            <input type="text" name="kegiatan" class="form-control" value="<?= $doc->kegiatan ?? '' ?>" required>
+                        </div>
+
+                        <!-- KRO -->
+                        <div class="mb-3">
+                            <label class="form-label">KRO</label>
+                            <input type="text" name="kro" class="form-control" value="<?= $doc->kro ?? '' ?>" required>
+                        </div>
+
+                        <!-- RO -->
+                        <div class="mb-3">
+                            <label class="form-label">RO</label>
+                            <input type="text" name="ro" class="form-control" value="<?= $doc->ro ?? '' ?>" required>
+                        </div>
+
+                        <!-- Komponen -->
+                        <div class="mb-3">
+                            <label class="form-label">Komponen</label>
+                            <input type="text" name="komponen" class="form-control" value="<?= $doc->komponen ?? '' ?>" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Anggaran</label>
+                            <select name="kode_anggaran" class="form-control" required>
+                                <option value="">-- Pilih Anggaran --</option>
+                                <?php foreach ($anggaran as $row): ?>
+                                    <option value="<?= $row->kode_akun ?>" 
+                                        <?= ($doc->kode_anggaran ?? '') == $row->kode_akun ? 'selected' : '' ?>>
+                                        <?= $row->kode_akun ?> - <?= $row->nama_kegiatan ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
+
+                       <div class="mb-3">
+                            <label class="form-label">Kab/Kota</label>
+                            <select id="regency_id_<?= $doc->id ?>" name="regency_id" class="form-control" required></select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label class="form-label">Provinsi</label>
+                            <input type="text" id="provinsi_<?= $doc->id ?>" name="provinsi" class="form-control" value="<?= $doc->provinsi ?? '' ?>">
+                        </div>
 
 
-<?php if ($d->status === 'revisi' && $i === $lastRevisiIndex): ?>
-<div class="modal fade" id="revisiModal<?= $d->id_dokumen ?>" tabindex="-1">
-    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-        <div class="modal-content">
+                        <!-- Tahun -->
+                        <div class="mb-3">
+                            <label class="form-label">Tahun Anggaran</label>
+                            <input type="text" name="tahun_anggaran" class="form-control" value="<?= $doc->tahun_anggaran ?? '' ?>" required>
+                        </div>
 
-            <div class="modal-header">
-                <h5 class="modal-title">Revisi Dokumen</h5>
-                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-            </div>
+                        <!-- Dasar Hukum -->
+                        <div class="mb-3">
+                            <label class="form-label">Dasar Hukum</label>
+                            <textarea name="dasar_hukum" class="form-control"><?= $doc->dasar_hukum ?? '' ?></textarea>
+                        </div>
 
-            <div class="modal-body">
+                        <!-- Gambaran Umum -->
+                        <div class="mb-3">
+                            <label class="form-label">Gambaran Umum</label>
+                            <textarea name="gambaran_umum" class="form-control"><?= $doc->gambaran_umum ?? '' ?></textarea>
+                        </div>
 
-<form method="post" action="<?= base_url('docxgenerator/revisi') ?>" class="needs-validation" novalidate>
+                        <!-- Maksud -->
+                        <div class="mb-3">
+                            <label class="form-label">Maksud dan Tujuan</label>
+                            <textarea name="maksud_tujuan" class="form-control"><?= $doc->maksud_tujuan ?? '' ?></textarea>
+                        </div>
 
-<input type="hidden" name="id_dokumen" value="<?= $d->id_dokumen ?>">
+                        <!-- Output -->
+                        <div class="mb-3">
+                            <label class="form-label">Keluaran</label>
+                            <textarea name="keluaran" class="form-control"><?= $doc->keluaran ?? '' ?></textarea>
+                        </div>
 
-<!-- Unit Organisasi -->
-<div class="mb-3">
-    <label class="form-label">Unit Organisasi</label>
-    <input type="text" name="unit_organisasi" class="form-control" value="<?= $d->unit_organisasi ?? '' ?>" required>
-</div>
+                        <!-- Nama -->
+                        <div class="mb-3">
+                            <label class="form-label">Nama Kegiatan</label>
+                            <input type="text" name="nama_kegiatan" class="form-control" value="<?= $doc->nama_kegiatan ?? '' ?>">
+                        </div>
 
-<!-- Program -->
-<div class="mb-3">
-    <label class="form-label">Program</label>
-    <input type="text" name="program" class="form-control" value="<?= $d->program ?? '' ?>" required>
-</div>
+                        <!-- Waktu -->
+                        <div class="mb-3">
+                            <label class="form-label">Waktu</label>
+                            <input type="text" name="waktu" class="form-control" value="<?= $doc->waktu ?? '' ?>">
+                        </div>
 
-<!-- Kegiatan -->
-<div class="mb-3">
-    <label class="form-label">Kegiatan</label>
-    <input type="text" name="kegiatan" class="form-control" value="<?= $d->kegiatan ?? '' ?>" required>
-</div>
+                        <!-- Tanggal Bayar -->
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Bayar</label>
+                            <input type="text" name="tanggal_bayar" class="form-control" value="<?= $doc->tanggal_bayar ?? '' ?>">
+                        </div>
 
-<!-- KRO -->
-<div class="mb-3">
-    <label class="form-label">KRO</label>
-    <input type="text" name="kro" class="form-control" value="<?= $d->kro ?? '' ?>" required>
-</div>
+                        <!-- Lokasi -->
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi</label>
+                            <input type="text" name="lokasi" class="form-control" value="<?= $doc->lokasi ?? '' ?>">
+                        </div>
 
-<!-- RO -->
-<div class="mb-3">
-    <label class="form-label">RO</label>
-    <input type="text" name="ro" class="form-control" value="<?= $d->ro ?? '' ?>" required>
-</div>
+                        <!-- Volume -->
+                        <div class="mb-3">
+                            <label class="form-label">Vol</label>
+                            <input type="text" name="vol" class="form-control" value="<?= $doc->vol ?? '' ?>">
+                        </div>
 
-<!-- Komponen -->
-<div class="mb-3">
-    <label class="form-label">Komponen</label>
-    <input type="text" name="komponen" class="form-control" value="<?= $d->komponen ?? '' ?>" required>
-</div>
+                        <!-- Satuan -->
+                        <div class="mb-3">
+                            <label class="form-label">Satuan</label>
+                            <input type="text" name="satuan" class="form-control" value="<?= $doc->satuan ?? '' ?>">
+                        </div>
 
-<!-- Anggaran -->
-<div class="mb-3">
-    <label class="form-label">Anggaran</label>
-    <select name="anggaran_id" class="form-control" required>
-        <option value="">-- Pilih Anggaran --</option>
-        <?php foreach ($anggaran as $row): ?>
-            <option value="<?= $row->id ?>" <?= ($d->anggaran_id ?? '') == $row->id ? 'selected' : '' ?>>
-                <?= $row->kode_akun ?> - <?= $row->nama_kegiatan ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
+                        <!-- Biaya -->
+                        <div class="mb-3">
+                            <label class="form-label">Biaya</label>
+                            <input type="text" name="biaya" class="form-control" value="<?= $doc->biaya ?? '' ?>">
+                        </div>
 
-<!-- Kab/Kota -->
-<div class="mb-3">
-    <label class="form-label">Kab/Kota</label>
-    <select name="regency_id" class="form-control" required></select>
-</div>
+                        <!-- PPK -->
+                        <div class="mb-3">
+                            <label class="form-label">PPK</label>
+                            <input type="text" name="nama_ppk" class="form-control" value="<?= $doc->nama_ppk ?? '' ?>" disabled>
+                        </div>
 
-<!-- Provinsi -->
-<div class="mb-3">
-    <label class="form-label">Provinsi</label>
-    <input type="text" name="provinsi" class="form-control" value="<?= $d->provinsi ?? '' ?>" readonly>
-</div>
+                        <!-- NIP PPK -->
+                        <div class="mb-3">
+                            <label class="form-label">NIP PPK</label>
+                            <input type="text" name="nip_ppk" class="form-control" value="<?= $doc->nip_ppk ?? '' ?>" disabled>
+                        </div>
 
-<!-- Tahun -->
-<div class="mb-3">
-    <label class="form-label">Tahun Anggaran</label>
-    <input type="text" name="tahun_anggaran" class="form-control" value="<?= $d->tahun_anggaran ?? '' ?>" required>
-</div>
+                        <!-- Kepala -->
+                        <div class="mb-3">
+                            <label class="form-label">Kepala</label>
+                            <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nama : '' ?>" disabled>
+                        </div>
 
-<!-- Dasar Hukum -->
-<div class="mb-3">
-    <label class="form-label">Dasar Hukum</label>
-    <textarea name="dasar_hukum" class="form-control"><?= $d->dasar_hukum ?? '' ?></textarea>
-</div>
+                        <!-- NIP Kepala -->
+                        <div class="mb-3">
+                            <label class="form-label">NIP Kepala</label>
+                            <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nip : '' ?>" disabled>
+                        </div>
 
-<!-- Gambaran Umum -->
-<div class="mb-3">
-    <label class="form-label">Gambaran Umum</label>
-    <textarea name="gambaran_umum" class="form-control"><?= $d->gambaran_umum ?? '' ?></textarea>
-</div>
+                        <button type="submit" class="btn btn-warning">Simpan Revisi</button>
 
-<!-- Maksud -->
-<div class="mb-3">
-    <label class="form-label">Maksud dan Tujuan</label>
-    <textarea name="maksud_tujuan" class="form-control"><?= $d->maksud_tujuan ?? '' ?></textarea>
-</div>
+                    </form>
 
-<!-- Output -->
-<div class="mb-3">
-    <label class="form-label">Keluaran</label>
-    <textarea name="keluaran" class="form-control"><?= $d->keluaran ?? '' ?></textarea>
-</div>
-
-<!-- Nama -->
-<div class="mb-3">
-    <label class="form-label">Nama Kegiatan</label>
-    <input type="text" name="nama_kegiatan" class="form-control" value="<?= $d->nama_kegiatan ?? '' ?>">
-</div>
-
-<!-- Waktu -->
-<div class="mb-3">
-    <label class="form-label">Waktu</label>
-    <input type="text" name="waktu" class="form-control" value="<?= $d->waktu ?? '' ?>">
-</div>
-
-<!-- Tanggal Bayar -->
-<div class="mb-3">
-    <label class="form-label">Tanggal Bayar</label>
-    <input type="text" name="tanggal_bayar" class="form-control" value="<?= $d->tanggal_bayar ?? '' ?>">
-</div>
-
-<!-- Lokasi -->
-<div class="mb-3">
-    <label class="form-label">Lokasi</label>
-    <input type="text" name="lokasi" class="form-control" value="<?= $d->lokasi ?? '' ?>">
-</div>
-
-<!-- Volume -->
-<div class="mb-3">
-    <label class="form-label">Vol</label>
-    <input type="text" name="vol" class="form-control" value="<?= $d->vol ?? '' ?>">
-</div>
-
-<!-- Satuan -->
-<div class="mb-3">
-    <label class="form-label">Satuan</label>
-    <input type="text" name="satuan" class="form-control" value="<?= $d->satuan ?? '' ?>">
-</div>
-
-<!-- Biaya -->
-<div class="mb-3">
-    <label class="form-label">Biaya</label>
-    <input type="text" name="biaya" class="form-control" value="<?= $d->biaya ?? '' ?>">
-</div>
-
-<!-- PPK -->
-<div class="mb-3">
-    <label class="form-label">PPK</label>
-    <select name="ppk" class="form-control"></select>
-</div>
-
-<!-- NIP PPK -->
-<div class="mb-3">
-    <label class="form-label">NIP PPK</label>
-    <input type="text" name="nip_ppk" class="form-control" value="<?= $d->nip_ppk ?? '' ?>" readonly>
-</div>
-
-<!-- Kepala -->
-<div class="mb-3">
-    <label class="form-label">Kepala</label>
-    <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nama : '' ?>" readonly>
-</div>
-
-<!-- NIP Kepala -->
-<div class="mb-3">
-    <label class="form-label">NIP Kepala</label>
-    <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nip : '' ?>" readonly>
-</div>
-
-<button type="submit" class="btn btn-warning">Simpan Revisi</button>
-
-</form>
-
+                </div>
             </div>
         </div>
     </div>
-</div>
-<?php endif; ?>
-
+<?php endforeach; ?>
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
@@ -276,16 +272,14 @@ foreach ($timeline as $i => $d) {
                             <span class="badge bg-${badge}">${item.status}</span>
                             <small>${item.created_at}</small>
                         </div>
-
                         <div class="mt-2">
                             <strong>${item.pengirim}</strong> ➝ 
                             <strong>${item.penerima || '-'}</strong>
                         </div>
-
                         <div class="mt-2 text-muted">
                             ${item.pesan ? item.pesan : '-'}
                         </div>
-                        </div>`;
+                    </div>`;
                     });
                 }
 
@@ -296,25 +290,17 @@ foreach ($timeline as $i => $d) {
     /* ================= CLICK BUTTON ================= */
         document.querySelectorAll('.btn-log').forEach(btn => {
             btn.addEventListener('click', function () {
-
                 const id = this.dataset.id;
-
-            // SET ID KE FORM (INI YANG SERING KELEWAT)
                 document.getElementById('tl_id').value = id;
-
-            // RESET FORM
                 document.getElementById('formTL').reset();
                 document.getElementById('wrap_pesan').classList.add('d-none');
-
                 loadLog(id);
             });
         });
 
     /* ================= STATUS CHANGE ================= */
         document.getElementById('tl_status').addEventListener('change', function(){
-
             const wrap = document.getElementById('wrap_pesan');
-
             if (this.value === 'revisi') {
                 wrap.classList.remove('d-none');
             } else {
@@ -336,48 +322,34 @@ foreach ($timeline as $i => $d) {
             .then(res => res.json())
             .then(res => {
 
-                // tampilkan alert
                 alertBox.classList.remove('d-none');
                 alertBox.classList.remove('alert-success','alert-danger');
 
                 if(res.status){
-
                     alertBox.classList.add('alert-success');
                     alertBox.innerText = 'Berhasil diproses';
-
                     const id = formData.get('id_dokumen');
                     loadLog(id);
-
                     document.getElementById('tl_pesan').value = '';
-
                 } else {
-
                     alertBox.classList.add('alert-danger');
                     alertBox.innerText = res.message || 'Gagal diproses';
                 }
 
-                // 🔥 tunggu 2 detik lalu tutup modal
                 setTimeout(() => {
-
                     const modalEl = document.getElementById('tlModal');
                     let modal = bootstrap.Modal.getInstance(modalEl);
-
                     if (!modal) {
                         modal = new bootstrap.Modal(modalEl);
                     }
-
                     modal.hide();
-
-                    // reset alert
                     alertBox.classList.add('d-none');
                     alertBox.innerText = '';
-
                 }, 2000);
 
             })
             .catch(err => {
                 console.error(err);
-
                 alertBox.classList.remove('d-none');
                 alertBox.classList.add('alert-danger');
                 alertBox.innerText = 'Terjadi kesalahan server';
@@ -385,4 +357,79 @@ foreach ($timeline as $i => $d) {
         });
 
     });
+
+    /* ================= SELECT2 REVISI MODAL ================= */
+    <?php foreach ($documents as $doc): ?>
+    (function () {
+
+        const id          = "<?= $doc->id ?>";
+        const regencyId   = "<?= $doc->regency_id ?? '' ?>";
+        const regencyText = "<?= addslashes($doc->kota_kegiatan ?? '') ?>";
+        const province    = "<?= addslashes($doc->provinsi ?? '') ?>";
+        const provinceId  = "<?= $doc->province_id ?? '' ?>";
+
+        let select2Ready = false;
+
+        document.getElementById('revisiModal' + id).addEventListener('shown.bs.modal', function () {
+
+            const $regency = $('#regency_id_' + id);
+
+            // init Select2 hanya sekali
+            if (!select2Ready) {
+                select2Ready = true;
+
+                $regency.select2({
+                    dropdownParent: $('#revisiModal' + id),
+                    placeholder: 'Ketik nama Kab/Kota...',
+                    minimumInputLength: 2,
+                    width: '100%',
+                    allowClear: true,
+                    ajax: {
+                        url: "<?= base_url('docxgenerator/search_regencies') ?>",
+                        dataType: 'json',
+                        delay: 250,
+                        data: function (params) {
+                            return { q: params.term };
+                        },
+                        processResults: function (data) {
+                            return { results: data };
+                        }
+                    }
+                });
+
+                $regency.on('select2:select', function (e) {
+                    const d = e.params.data;
+                    $('#provinsi_' + id).val(d.province || '');
+                    $('#province_id_' + id).val(d.province_id || '');
+                });
+
+                $regency.on('select2:clear', function () {
+                    $('#provinsi_' + id).val('');
+                    $('#province_id_' + id).val('');
+                });
+            }
+
+            // ✅ tampilkan nilai default meskipun regencyId kosong
+            if (regencyText) {
+                $regency.find('option').remove();
+
+                if (regencyId) {
+                    // ✅ ada ID → pakai normal
+                    const option = new Option(regencyText, regencyId, true, true);
+                    $regency.append(option).trigger('change');
+                } else {
+                    // ✅ tidak ada ID → tampilkan teks tapi value kosong
+                    const option = new Option(regencyText, '', true, true);
+                    $regency.append(option).trigger('change');
+                }
+
+                $('#provinsi_' + id).val(province);
+                $('#province_id_' + id).val(provinceId);
+            }
+
+        });
+
+    })();
+    <?php endforeach; ?>
+
 </script>
