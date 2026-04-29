@@ -410,19 +410,28 @@ foreach ($timeline as $i => $d) {
             }
 
             // ✅ tampilkan nilai default meskipun regencyId kosong
-            if (regencyText) {
+            /*if (regencyText) {
                 $regency.find('option').remove();
 
                 if (regencyId) {
-                    // ✅ ada ID → pakai normal
                     const option = new Option(regencyText, regencyId, true, true);
                     $regency.append(option).trigger('change');
                 } else {
-                    // ✅ tidak ada ID → tampilkan teks tapi value kosong
+                    // ✅ value dikosongkan, bukan pakai regencyText
                     const option = new Option(regencyText, '', true, true);
                     $regency.append(option).trigger('change');
                 }
 
+                $('#provinsi_' + id).val(province);
+                $('#province_id_' + id).val(provinceId);
+            }*/
+
+
+            if (regencyText) {
+                $regency.find('option').remove();
+                const val = regencyId ? regencyId : regencyText;
+                const option = new Option(regencyText, val, true, true);
+                $regency.append(option).trigger('change');
                 $('#provinsi_' + id).val(province);
                 $('#province_id_' + id).val(provinceId);
             }

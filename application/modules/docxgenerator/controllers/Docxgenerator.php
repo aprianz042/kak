@@ -292,9 +292,7 @@ class Docxgenerator extends Authenticated_Controller {
 
         $template->setValue('tanggal_buat', $tanggal_buat);
 
-/*        $template->setValue('nama_ppk', $ppk);
-        $template->setValue('nip_ppk', $nip_ppk);
-*/
+
         $template->setValue('nama_ppk', $ppk['nama']);
         $template->setValue('nip_ppk', $ppk['nip']);
 
@@ -365,19 +363,24 @@ class Docxgenerator extends Authenticated_Controller {
 
         $regency_id = $this->input->post('regency_id', true);
 
-        if ($regency_id) {
-            // ada ID → cari dari DB wilayah
+        // cek apakah yang dikirim ID angka atau string nama kota
+        if ($regency_id && is_numeric($regency_id)) 
+        {
+            // ✅ ID valid → cari dari DB wilayah
             $wil = $this->Docxgenerator_model->get_regency_with_province($regency_id);
             if (!$wil) {
                 show_error('Kab/Kota tidak valid atau tidak ditemukan di database wilayah.');
             }
             $kota_kegiatan = $wil['regency_name'];
             $provinsi      = $wil['province_name'];
-        } else {
-            // ✅ tidak ada ID → pakai data lama dari DB dokumen
+        } 
+        else 
+        {
+            // ✅ string nama kota atau kosong → pakai data lama dari DB
             $kota_kegiatan = $doc->kota_kegiatan;
             $provinsi      = $doc->provinsi;
         }
+
 
         $tahun_anggaran = $this->input->post('tahun_anggaran', true);
         $dasar_hukum    = $this->input->post('dasar_hukum', true);
