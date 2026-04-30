@@ -29,20 +29,20 @@ class Docxgenerator_model extends CI_Model {
     public function get_doc_by_id($id)
     {
         return $this->db
-            ->select('
-                generated_documents.*,
-                pegawai.nama as nama_ppk,
-                pegawai.nip as nip_ppk,
-                anggaran.kode_akun,
-                anggaran.nama_kegiatan as nama_anggaran
+        ->select('
+            generated_documents.*,
+            pegawai.nama as nama_ppk,
+            pegawai.nip as nip_ppk,
+            anggaran.kode_akun,
+            anggaran.nama_kegiatan as nama_anggaran
             ')
-            ->from('generated_documents')
-            ->join('pegawai', 'pegawai.id = generated_documents.ppk_id', 'left')
-            ->join('anggaran', 'anggaran.kode_akun = generated_documents.kode_anggaran', 'left')
-            ->where('generated_documents.id', $id)
-            ->order_by('generated_documents.created_at', 'DESC')
-            ->get()
-            ->result();
+        ->from('generated_documents')
+        ->join('pegawai', 'pegawai.id = generated_documents.ppk_id', 'left')
+        ->join('anggaran', 'anggaran.kode_akun = generated_documents.kode_anggaran', 'left')
+        ->where('generated_documents.id', $id)
+        ->order_by('generated_documents.created_at', 'DESC')
+        ->get()
+        ->result();
     }
 
     public function get_doc_user($nip)
@@ -224,7 +224,7 @@ class Docxgenerator_model extends CI_Model {
         ]);
     }
 
-    public function insertLog($data)
+    /*public function insertLog($data)
     {
         return $this->db->insert('log_dokumen', [
             'id_dokumen' => $data['id_dokumen'],
@@ -233,6 +233,30 @@ class Docxgenerator_model extends CI_Model {
             'status'     => $data['status'],
             'pesan'      => $data['pesan']
         ]);
+    }
+*/
+    public function insertLog($data)
+    {
+        $this->db->trans_start();
+
+    // insert log
+        $this->db->insert('log_dokumen', [
+            'id_dokumen' => $data['id_dokumen'],
+            'pengirim'   => $data['pengirim'],
+            'penerima'   => $data['penerima'],
+            'status'     => $data['status'],
+            'pesan'      => $data['pesan']
+        ]);
+
+    // update status dokumen
+        $this->db->where('id', $data['id_dokumen']);
+        $this->db->update('generated_documents', [
+            'status' => $data['status']
+        ]);
+
+        $this->db->trans_complete();
+
+        return $this->db->trans_status();
     }
 
     public function get_logs_dokumen($id)

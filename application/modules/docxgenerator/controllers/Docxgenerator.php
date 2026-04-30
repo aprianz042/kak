@@ -445,6 +445,17 @@ class Docxgenerator extends Authenticated_Controller {
 
         $this->Docxgenerator_model->update_document($id_dokumen, $documentData);
 
+        // ===== INSERT LOG DOKUMEN =====
+        $nip_login = $this->session->userdata('nip');
+        $penerima = $this->Docxgenerator_model->getPengirimTerakhir($id_dokumen);
+        $this->Docxgenerator_model->insertLog([
+            'id_dokumen' => $id_dokumen,
+            'pengirim'   => $nip_login,
+            'penerima'   => $penerima ? $penerima->pengirim : null,
+            'status'     => 'ajuan_revisi',
+            'pesan'      => 'Dokumen telah direvisi dan diajukan kembali'
+        ]);
+
         // ===== DASAR HUKUM =====
         $dashum = [];
         if (!empty($dasar_hukum)) {
@@ -576,7 +587,7 @@ class Docxgenerator extends Authenticated_Controller {
         }
 
         $this->session->set_flashdata('success', 'Dokumen berhasil direvisi');
-        redirect('docxgenerator/timeline/' . $id_dokumen);
+        redirect('docxgenerator/timeline_dok/' . $id_dokumen);
     }
 
     public function timeline_dok($id)

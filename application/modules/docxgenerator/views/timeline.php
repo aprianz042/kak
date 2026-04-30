@@ -15,48 +15,62 @@ $badge = [
     'draft'       => 'secondary',
     'ajuan_baru'  => 'primary',
     'revisi'      => 'warning',
+    'ajuan_revisi'  => 'warning',
     'disetujui'   => 'success'
 ];
 
-// cari index revisi terakhir
-$lastRevisiIndex = null;
-foreach ($timeline as $i => $d) {
-    if ($d->status === 'revisi') {
-        $lastRevisiIndex = $i;
-    }
-}
+$lastIndex = count($timeline) - 1;
 ?>
 
 <?php foreach ($timeline as $i => $d): ?>
-    <div class="mb-3 p-3 border rounded bg-light">
-        <div class="d-flex justify-content-between">
-            <span class="badge bg-<?= $badge[$d->status] ?? 'secondary' ?>">
-                <?= $d->status ?>
-            </span>
-            <small><?= $d->created_at ?></small>
-        </div>
 
-        <div class="mt-2">
-            <strong><?= $d->pengirim ?></strong> ➝ 
-            <strong><?= $d->penerima ?></strong>
-        </div>
+    <?php
+    $justifyClass = ($i % 2 == 0) ? 'justify-content-start' : 'justify-content-end';
+    $textAlign    = ($i % 2 == 0) ? 'text-start' : 'text-end';
+    ?>
 
-        <div class="mt-2 text-muted">
-            <?= $d->pesan ?>
-        </div>
+    <div class="d-flex <?= $justifyClass ?>">
+        <div class="mb-3 p-3 border rounded bg-light w-100 <?= $textAlign ?>">
 
-        <?php if ($d->status === 'revisi' && $i === $lastRevisiIndex): ?>
+            <!-- STATUS -->
+            <div>
+                <span class="badge bg-<?= $badge[$d->status] ?? 'secondary' ?>">
+                    <?= $d->status ?>
+                </span>
+            </div>
+
+            <!-- TIMESTAMP (dibawah status) -->
+            <div class="mt-1">
+                <small><?= $d->created_at ?></small>
+            </div>
+
+            <!-- PENGIRIM → PENERIMA -->
             <div class="mt-2">
-                <button class="btn btn-sm btn-success" 
-                data-bs-toggle="modal" 
-                data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
-                <i class="fa fa-edit"></i> Revisi
-            </button>
-        </div>
-    <?php endif; ?>
+                <strong><?= $d->pengirim ?></strong> ➝ 
+                <strong><?= $d->penerima ?></strong>
+            </div>
+
+            <!-- PESAN -->
+            <div class="mt-2 text-muted">
+                <?= $d->pesan ?>
+            </div>
+
+            <!-- BUTTON REVISI -->
+            <?php if ($i === $lastIndex && $d->status === 'revisi'): ?>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-success" 
+                    data-bs-toggle="modal" 
+                    data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
+                    <i class="fa fa-edit"></i> Revisi
+                </button>
+            </div>
+        <?php endif; ?>
+
+    </div>
 </div>
 
 <?php endforeach; ?>
+
 <?php foreach ($documents as $doc): ?>
 
     <div class="modal fade" id="revisiModal<?= $doc->id ?>" tabindex="-1">
@@ -122,7 +136,9 @@ foreach ($timeline as $i => $d) {
                             </select>
                         </div>
 
-                       <div class="mb-3">
+                        <input type="hidden" name="akun_anggaran" id="akun_anggaran_<?= $doc->id ?>" value="<?= $doc->akun_anggaran ?>">
+
+                        <div class="mb-3">
                             <label class="form-label">Kab/Kota</label>
                             <select id="regency_id_<?= $doc->id ?>" name="regency_id" class="form-control" required></select>
                         </div>
@@ -279,13 +295,32 @@ foreach ($timeline as $i => $d) {
                         <div class="mt-2 text-muted">
                             ${item.pesan ? item.pesan : '-'}
                         </div>
-                    </div>`;
+                        </div>`;
                     });
                 }
 
                 container.innerHTML = html;
             });
         }
+
+        document.querySelectorAll('select[name="kode_anggaran"]').forEach(function(select){
+            select.addEventListener('change', function(){
+
+                const selected = this.options[this.selectedIndex];
+                const text = selected.text; // "kode - nama kegiatan"
+
+                // ambil bagian nama setelah "-"
+                let akun = text.split(' - ')[1] || '';
+
+                // cari hidden input dalam form yang sama
+                const hidden = this.closest('form').querySelector('[name="akun_anggaran"]');
+
+                if(hidden){
+                    hidden.value = akun.trim();
+                }
+            });
+
+        });
 
     /* ================= CLICK BUTTON ================= */
         document.querySelectorAll('.btn-log').forEach(btn => {
@@ -359,7 +394,7 @@ foreach ($timeline as $i => $d) {
     });
 
     /* ================= SELECT2 REVISI MODAL ================= */
-    <?php foreach ($documents as $doc): ?>
+<?php foreach ($documents as $doc): ?>
     (function () {
 
         const id          = "<?= $doc->id ?>";
@@ -439,6 +474,6 @@ foreach ($timeline as $i => $d) {
         });
 
     })();
-    <?php endforeach; ?>
+<?php endforeach; ?>
 
 </script>
