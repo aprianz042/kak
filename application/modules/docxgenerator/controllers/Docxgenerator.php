@@ -595,6 +595,7 @@ class Docxgenerator extends Authenticated_Controller {
         $id_user = $this->session->userdata('user_id');
         $nip = $this->session->userdata('nip');
         $role = $this->session->userdata('role');
+        $data['id_dokumen'] = $id;
         $data['title'] = 'DOCX Generator';
         $data['timeline'] = $this->Docxgenerator_model->get_logs_dokumen($id);
         $data['kepala'] = $this->Docxgenerator_model->get_kepala_default();
@@ -912,6 +913,49 @@ class Docxgenerator extends Authenticated_Controller {
                 'status' => true,
                 'message' => 'Berhasil'
             ]);
+        }
+    }
+
+    public function tindak_lanjut_ppk()
+    {
+        // ✅ Set header JSON di awal
+        header('Content-Type: application/json');
+        
+        $id_dokumen = (int) $this->input->post('id_dokumen');
+        $aksi       = $this->input->post('aksi');
+        $pesan      = $this->input->post('pesan');
+        $nip_login  = $this->session->userdata('nip');
+
+        if (!$id_dokumen || !$aksi) {
+            echo json_encode(['status' => false, 'message' => 'Data tidak valid']);
+            return;
+        }
+
+        $dokumen = $this->Docxgenerator_model->get_by_id($id_dokumen);
+        if (!$dokumen) {
+            echo json_encode(['status' => false, 'message' => 'Dokumen tidak ditemukan']);
+            return;
+        }
+
+        $penerima = $this->Docxgenerator_model->getPengirimTerakhir($id_dokumen);
+
+        $this->db->trans_begin();
+
+        $this->Docxgenerator_model->updateStatus($id_dokumen, $aksi);
+        $this->Docxgenerator_model->insertLog([
+            'id_dokumen' => $id_dokumen,
+            'pengirim'   => $nip_login,
+            'penerima'   => $penerima ? $penerima->pengirim : null,
+            'status'     => $aksi,
+            'pesan'      => $pesan
+        ]);
+
+        if ($this->db->trans_status() === FALSE) {
+            $this->db->trans_rollback();
+            echo json_encode(['status' => false, 'message' => 'Gagal tindak lanjut']);
+        } else {
+            $this->db->trans_commit();
+            echo json_encode(['status' => true, 'message' => 'Berhasil']);
         }
     }
 

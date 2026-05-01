@@ -10,6 +10,9 @@
 
 <div id="message" class="mt-3 d-none"></div>
 
+
+<div id="tl_alert" class="alert d-none mt-2"></div>
+
 <?php 
 $badge = [
     'draft'       => 'secondary',
@@ -56,7 +59,9 @@ $lastIndex = count($timeline) - 1;
             </div>
 
             <!-- BUTTON REVISI -->
-            <?php if ($i === $lastIndex && $d->status === 'revisi'): ?>
+            <?php 
+            $role = $this->session->userdata('role');
+            if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
                 <div class="mt-3">
                     <button class="btn btn-sm btn-success" 
                     data-bs-toggle="modal" 
@@ -255,26 +260,55 @@ $lastIndex = count($timeline) - 1;
     </div>
 <?php endforeach; ?>
 
+<?php 
+$role = $this->session->userdata('role');
+$lastTimeline = $timeline[$lastIndex] ?? null;
+$showFormTL = (
+    $role == 'ppk' && 
+    $lastTimeline && 
+    in_array($lastTimeline->status, ['ajuan_baru', 'ajuan_revisi'])
+);
+?>
+
+<?php if ($showFormTL): ?>
+    <form id="formTL">
+        <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>" id="tl_id">
+
+        <div class="mb-3">
+            <label>Tindak Lanjut</label>
+            <select name="aksi" id="tl_status" class="form-control" required>
+                <option value="">-- pilih --</option>
+                <option value="revisi">Revisi</option>
+                <option value="disetujui">ACC</option>
+            </select>
+        </div>
+
+        <div class="mb-3 d-none" id="wrap_pesan">
+            <label>Pesan Revisi</label>
+            <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
+        </div>
+
+        <button class="btn btn-primary w-100">Kirim</button>
+    </form>
+<?php endif; ?>
+
+
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
     /* ================= LOAD LOG ================= */
         function loadLog(id) {
-
             const container = document.getElementById('logContainer');
             container.innerHTML = 'Loading...';
 
             fetch("<?= base_url('docxgenerator/get_log/') ?>" + id)
             .then(res => res.json())
             .then(data => {
-
                 let html = '';
-
                 if (!data.length) {
                     html = '<p class="text-muted">Belum ada log</p>';
                 } else {
                     data.forEach(item => {
-
                         let badge = {
                             draft:'secondary',
                             ajuan_baru:'primary',
@@ -298,182 +332,162 @@ $lastIndex = count($timeline) - 1;
                         </div>`;
                     });
                 }
-
                 container.innerHTML = html;
             });
         }
 
+    /* ================= KODE ANGGARAN ================= */
         document.querySelectorAll('select[name="kode_anggaran"]').forEach(function(select){
             select.addEventListener('change', function(){
-
                 const selected = this.options[this.selectedIndex];
-                const text = selected.text; // "kode - nama kegiatan"
-
-                // ambil bagian nama setelah "-"
+                const text = selected.text;
                 let akun = text.split(' - ')[1] || '';
-
-                // cari hidden input dalam form yang sama
                 const hidden = this.closest('form').querySelector('[name="akun_anggaran"]');
-
-                if(hidden){
-                    hidden.value = akun.trim();
-                }
+                if (hidden) hidden.value = akun.trim();
             });
-
         });
 
     /* ================= CLICK BUTTON ================= */
         document.querySelectorAll('.btn-log').forEach(btn => {
             btn.addEventListener('click', function () {
                 const id = this.dataset.id;
-                document.getElementById('tl_id').value = id;
-                document.getElementById('formTL').reset();
-                document.getElementById('wrap_pesan').classList.add('d-none');
+                const tlId     = document.getElementById('tl_id');
+                const formTL   = document.getElementById('formTL');
+                const wrapPesan = document.getElementById('wrap_pesan');
+
+                if (tlId) tlId.value = id;
+                if (formTL) formTL.reset();
+                if (wrapPesan) wrapPesan.classList.add('d-none');
+
                 loadLog(id);
             });
         });
 
     /* ================= STATUS CHANGE ================= */
-        document.getElementById('tl_status').addEventListener('change', function(){
-            const wrap = document.getElementById('wrap_pesan');
-            if (this.value === 'revisi') {
-                wrap.classList.remove('d-none');
-            } else {
-                wrap.classList.add('d-none');
-            }
-        });
+        const tlStatus = document.getElementById('tl_status');
+        if (tlStatus) {
+            tlStatus.addEventListener('change', function(){
+                const wrap = document.getElementById('wrap_pesan');
+                if (this.value === 'revisi') {
+                    wrap.classList.remove('d-none');
+                } else {
+                    wrap.classList.add('d-none');
+                }
+            });
+        }
 
     /* ================= SUBMIT ================= */
-        document.getElementById('formTL').addEventListener('submit', function(e){
-            e.preventDefault();
+        const formTL = document.getElementById('formTL');
+        if (formTL) {
+            formTL.addEventListener('submit', function(e){
+                e.preventDefault();
 
-            const formData = new FormData(this);
-            const alertBox = document.getElementById('tl_alert');
+                const form = this;
+                const formData = new FormData(form);
+                const alertBox = document.getElementById('tl_alert');
 
-            fetch("<?= base_url('docxgenerator/tindak_lanjut') ?>", {
-                method:'POST',
-                body:formData
-            })
-            .then(res => res.json())
-            .then(res => {
-
-                alertBox.classList.remove('d-none');
-                alertBox.classList.remove('alert-success','alert-danger');
-
-                if(res.status){
-                    alertBox.classList.add('alert-success');
-                    alertBox.innerText = 'Berhasil diproses';
-                    const id = formData.get('id_dokumen');
-                    loadLog(id);
-                    document.getElementById('tl_pesan').value = '';
-                } else {
-                    alertBox.classList.add('alert-danger');
-                    alertBox.innerText = res.message || 'Gagal diproses';
+                function showAlert(type, message){
+                    if (alertBox) {
+                        alertBox.classList.remove('d-none','alert-success','alert-danger');
+                        alertBox.classList.add(type === 'success' ? 'alert-success' : 'alert-danger');
+                        alertBox.innerText = message;
+                    } else {
+                        alert(message);
+                    }
                 }
 
-                setTimeout(() => {
-                    const modalEl = document.getElementById('tlModal');
-                    let modal = bootstrap.Modal.getInstance(modalEl);
-                    if (!modal) {
-                        modal = new bootstrap.Modal(modalEl);
+                fetch("<?= base_url('docxgenerator/tindak_lanjut_ppk') ?>", {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(res => {
+                    return res.text().then(text => {
+                        console.log('RAW RESPONSE:', text);
+                        try {
+                            return JSON.parse(text);
+                        } catch(e) {
+                            throw new Error('Response bukan JSON: ' + text);
+                        }
+                    });
+                })
+                .then(res => {
+                    if (res.status) {
+                        showAlert('success', 'Berhasil diproses');
+                        setTimeout(function () {
+                            location.reload();
+                        }, 1000);
+                    } else {
+                        showAlert('error', res.message || 'Gagal diproses');
                     }
-                    modal.hide();
-                    alertBox.classList.add('d-none');
-                    alertBox.innerText = '';
-                }, 2000);
-
-            })
-            .catch(err => {
-                console.error(err);
-                alertBox.classList.remove('d-none');
-                alertBox.classList.add('alert-danger');
-                alertBox.innerText = 'Terjadi kesalahan server';
+                })
+                .catch(err => {
+                    console.error('ERROR:', err.message);
+                    showAlert('error', err.message);
+                });
             });
-        });
-
-    });
+        }
 
     /* ================= SELECT2 REVISI MODAL ================= */
-<?php foreach ($documents as $doc): ?>
-    (function () {
+        <?php foreach ($documents as $doc): ?>
+            (function () {
+                const id          = "<?= $doc->id ?>";
+                const regencyId   = "<?= $doc->regency_id ?? '' ?>";
+                const regencyText = "<?= addslashes($doc->kota_kegiatan ?? '') ?>";
+                const province    = "<?= addslashes($doc->provinsi ?? '') ?>";
+                const provinceId  = "<?= $doc->province_id ?? '' ?>";
 
-        const id          = "<?= $doc->id ?>";
-        const regencyId   = "<?= $doc->regency_id ?? '' ?>";
-        const regencyText = "<?= addslashes($doc->kota_kegiatan ?? '') ?>";
-        const province    = "<?= addslashes($doc->provinsi ?? '') ?>";
-        const provinceId  = "<?= $doc->province_id ?? '' ?>";
+                let select2Ready = false;
 
-        let select2Ready = false;
+                document.getElementById('revisiModal' + id).addEventListener('shown.bs.modal', function () {
 
-        document.getElementById('revisiModal' + id).addEventListener('shown.bs.modal', function () {
+                    const $regency = $('#regency_id_' + id);
 
-            const $regency = $('#regency_id_' + id);
+                    if (!select2Ready) {
+                        select2Ready = true;
 
-            // init Select2 hanya sekali
-            if (!select2Ready) {
-                select2Ready = true;
-
-                $regency.select2({
-                    dropdownParent: $('#revisiModal' + id),
-                    placeholder: 'Ketik nama Kab/Kota...',
-                    minimumInputLength: 2,
-                    width: '100%',
-                    allowClear: true,
-                    ajax: {
-                        url: "<?= base_url('docxgenerator/search_regencies') ?>",
-                        dataType: 'json',
-                        delay: 250,
-                        data: function (params) {
-                            return { q: params.term };
-                        },
-                        processResults: function (data) {
-                            return { results: data };
+                        $regency.select2({
+                        dropdownParent: document.getElementById('revisiModal' + id), // ✅ pakai native element
+                        placeholder: 'Ketik nama Kab/Kota...',
+                        minimumInputLength: 2,
+                        width: '100%',
+                        allowClear: true,
+                        ajax: {
+                            url: "<?= base_url('docxgenerator/search_regencies') ?>",
+                            dataType: 'json',
+                            delay: 250,
+                            data: function (params) {
+                                return { q: params.term };
+                            },
+                            processResults: function (data) {
+                                return { results: data };
+                            },
+                            cache: true
                         }
+                    });
+
+                        $regency.on('select2:select', function (e) {
+                            const d = e.params.data;
+                            $('#provinsi_' + id).val(d.province || '');
+                            $('#province_id_' + id).val(d.province_id || '');
+                        });
+
+                        $regency.on('select2:clear', function () {
+                            $('#provinsi_' + id).val('');
+                            $('#province_id_' + id).val('');
+                        });
+                    }
+
+                    if (regencyText) {
+                        $regency.find('option').remove();
+                        const val = regencyId ? regencyId : regencyText;
+                        const option = new Option(regencyText, val, true, true);
+                        $regency.append(option).trigger('change');
+                        $('#provinsi_' + id).val(province);
+                        $('#province_id_' + id).val(provinceId);
                     }
                 });
+            })();
+        <?php endforeach; ?>
 
-                $regency.on('select2:select', function (e) {
-                    const d = e.params.data;
-                    $('#provinsi_' + id).val(d.province || '');
-                    $('#province_id_' + id).val(d.province_id || '');
-                });
-
-                $regency.on('select2:clear', function () {
-                    $('#provinsi_' + id).val('');
-                    $('#province_id_' + id).val('');
-                });
-            }
-
-            // ✅ tampilkan nilai default meskipun regencyId kosong
-            /*if (regencyText) {
-                $regency.find('option').remove();
-
-                if (regencyId) {
-                    const option = new Option(regencyText, regencyId, true, true);
-                    $regency.append(option).trigger('change');
-                } else {
-                    // ✅ value dikosongkan, bukan pakai regencyText
-                    const option = new Option(regencyText, '', true, true);
-                    $regency.append(option).trigger('change');
-                }
-
-                $('#provinsi_' + id).val(province);
-                $('#province_id_' + id).val(provinceId);
-            }*/
-
-
-            if (regencyText) {
-                $regency.find('option').remove();
-                const val = regencyId ? regencyId : regencyText;
-                const option = new Option(regencyText, val, true, true);
-                $regency.append(option).trigger('change');
-                $('#provinsi_' + id).val(province);
-                $('#province_id_' + id).val(provinceId);
-            }
-
-        });
-
-    })();
-<?php endforeach; ?>
-
+}); // ✅ tutup DOMContentLoaded
 </script>

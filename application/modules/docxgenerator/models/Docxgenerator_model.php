@@ -58,6 +58,7 @@ class Docxgenerator_model extends CI_Model {
     {
         return $this->db
         ->where('ppk_id', $id)
+        ->where('status !=', 'draft')
         ->order_by('created_at', 'DESC')
         ->get($this->table)
         ->result();

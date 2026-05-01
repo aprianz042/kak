@@ -39,19 +39,20 @@
                 <td><?= $d->nip_creator ?></td>
                 <td>
                     <a class="btn btn-sm btn-success"
-                        href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">
-                        Download
-                    </a>
-                </td>
+                    href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">
+                    Download
+                </a>
+            </td>
 
-                <td>
-                    <button class="btn btn-sm btn-danger btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">Tindak Lanjut</button>
-                </td>
+            <td>
+                <button class="btn btn-sm btn-danger btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">Tindak Lanjut</button>
+                <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/timeline_dok/'.$d->id) ?>">TL</a>
+            </td>
 
-                <td><?= $d->status ?></td>
-            </tr>
-        <?php endforeach; ?>
-    </tbody>
+            <td><?= $d->status ?></td>
+        </tr>
+    <?php endforeach; ?>
+</tbody>
 </table>
 
 <!-- MODAL -->
