@@ -21,9 +21,9 @@
             <th>Kode</th>
             <th>Akun</th>
             <th>Pembuat</th>
-            <th>File</th>
+            <!-- <th>File</th> -->
             <th>Tindak Lanjut</th>
-            <th>Status</th>
+            <th>Status Dokumen</th>
         </tr>
     </thead>
     <tbody>
@@ -36,23 +36,25 @@
                 <td><?= $d->provinsi ?></td>
                 <td><?= $d->kode_anggaran ?></td>
                 <td><?= $d->akun_anggaran ?></td>
-                <td><?= $d->nip_creator ?></td>
+                <td><?= $d->nama_creator ?></td>
+                <!-- <td><a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download</a></td> -->
+
                 <td>
-                    <a class="btn btn-sm btn-success"
-                    href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">
-                    Download
-                </a>
-            </td>
+                    <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/timeline_dok/'.$d->id) ?>">Riwayat Dokumen</a>
+                </td>
 
-            <td>
-                <button class="btn btn-sm btn-danger btn-log" data-id="<?= $d->id ?>" data-bs-toggle="modal" data-bs-target="#tlModal">Tindak Lanjut</button>
-                <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/timeline_dok/'.$d->id) ?>">TL</a>
-            </td>
-
-            <td><?= $d->status ?></td>
-        </tr>
-    <?php endforeach; ?>
-</tbody>
+                <td>
+                    <?php if ($d->status === 'draft'): ?>
+                        <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/pengajuan/'.$d->id) ?>">Ajukan Draft</a>
+                    <?php elseif ($d->status === 'disetujui'): ?>
+                        <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download Dokumen</a>
+                    <?php else: ?>
+                        <span><?= htmlspecialchars($d->status) ?></span>
+                    <?php endif; ?>
+                </td>
+            </tr>
+        <?php endforeach; ?>
+    </tbody>
 </table>
 
 <!-- MODAL -->

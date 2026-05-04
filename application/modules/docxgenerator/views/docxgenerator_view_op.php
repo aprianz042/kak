@@ -24,7 +24,6 @@
             <th>Provinsi</th>
             <th>Kode Anggaran</th>
             <th>Akun</th>
-            <th>Pembuat</th>
             <th>PPK</th>
             <!-- <th>Aksi</th> -->
             <th>Pengajuan</th>
@@ -42,8 +41,7 @@
                 <td><?= htmlspecialchars($d->provinsi) ?></td>
                 <td><?= htmlspecialchars($d->kode_anggaran) ?></td>
                 <td><?= htmlspecialchars($d->akun_anggaran) ?></td>
-                <td><?= htmlspecialchars($d->nip_creator) ?></td>
-                <td><?= htmlspecialchars($d->ppk_id) ?></td>
+                <td><?= htmlspecialchars($d->nama_ppk) ?></td>
 
                 <!-- <td>
                     <button class="btn btn-sm btn-danger btn-delete"

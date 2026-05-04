@@ -45,23 +45,36 @@ class Docxgenerator_model extends CI_Model {
         ->result();
     }
 
-    public function get_doc_user($nip)
+    public function get_doc_user($id)
     {
         return $this->db
-        ->where('nip_creator', $nip)
-        ->order_by('created_at', 'DESC')
-        ->get($this->table)
-        ->result();
+            ->select('
+                        generated_documents.*,
+                        pegawai.nama as nama_ppk,
+                        pegawai.nip as nip_ppk
+                    ')            
+            ->from('generated_documents')
+            ->join('pegawai', 'generated_documents.ppk_id = pegawai.id', 'left')
+            ->where('generated_documents.id_creator', $id)
+            ->order_by('generated_documents.created_at', 'DESC')
+            ->get()
+            ->result();
     }
 
     public function get_doc_ppk($id)
     {
         return $this->db
-        ->where('ppk_id', $id)
-        ->where('status !=', 'draft')
-        ->order_by('created_at', 'DESC')
-        ->get($this->table)
-        ->result();
+            ->select('
+                generated_documents.*,
+                creator.nama as nama_creator
+            ')
+            ->from('generated_documents')
+            ->join('pegawai creator', 'creator.id = generated_documents.id_creator', 'left') // sesuaikan ID / NIP
+            ->where('generated_documents.ppk_id', $id)
+            ->where('generated_documents.status !=', 'draft')
+            ->order_by('generated_documents.created_at', 'DESC')
+            ->get()
+            ->result();
     }
 
 

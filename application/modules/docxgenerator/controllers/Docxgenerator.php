@@ -30,7 +30,7 @@ class Docxgenerator extends Authenticated_Controller {
 
         if ($role == "operator") 
         {
-            $data['documents'] = $this->Docxgenerator_model->get_doc_user($nip);            
+            $data['documents'] = $this->Docxgenerator_model->get_doc_user($id_user);            
             $data['content'] = $this->load->view('docxgenerator_view_op', $data, TRUE);
         }
         elseif ($role == "ppk")
@@ -144,7 +144,7 @@ class Docxgenerator extends Authenticated_Controller {
             'nip_kepala' => $nip_kepala,
             'created_at' => date('Y-m-d H:i:s'),
             'file_doc' => $baseName,
-            'nip_creator' => $this->session->userdata('nip'),
+            'id_creator' => $this->session->userdata('user_id'),
             'status' => 'draft'
         ];
 
