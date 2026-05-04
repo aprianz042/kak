@@ -1,80 +1,287 @@
-<?php if ($this->session->flashdata('success')): ?>
-    <div class="alert alert-success">
-        <?= $this->session->flashdata('success') ?>
-    </div>
-<?php endif; ?>
+<div class="row">
+    <div class="col-md-6 col-12 scroll-col">
 
-<div class="d-flex justify-content-between align-items-center mb-3">
-    <h3 class="h5 mb-0">Timeline Dokumen</h3>
-</div>
-
-<div id="message" class="mt-3 d-none"></div>
-
-
-<div id="tl_alert" class="alert d-none mt-2"></div>
-
-<?php 
-$badge = [
-    'draft'       => 'secondary',
-    'ajuan_baru'  => 'primary',
-    'revisi'      => 'warning',
-    'ajuan_revisi'  => 'warning',
-    'disetujui'   => 'success'
-];
-
-$lastIndex = count($timeline) - 1;
-?>
-
-<?php foreach ($timeline as $i => $d): ?>
-
-    <?php
-    $justifyClass = ($i % 2 == 0) ? 'justify-content-start' : 'justify-content-end';
-    $textAlign    = ($i % 2 == 0) ? 'text-start' : 'text-end';
-    ?>
-
-    <div class="d-flex <?= $justifyClass ?>">
-        <div class="mb-3 p-3 border rounded bg-light w-100 <?= $textAlign ?>">
-
-            <!-- STATUS -->
-            <div>
-                <span class="badge bg-<?= $badge[$d->status] ?? 'secondary' ?>">
-                    <?= $d->status ?>
-                </span>
-            </div>
-
-            <!-- TIMESTAMP (dibawah status) -->
-            <div class="mt-1">
-                <small><?= $d->created_at ?></small>
-            </div>
-
-            <!-- PENGIRIM → PENERIMA -->
-            <div class="mt-2">
-                <strong><?= $d->pengirim ?></strong> ➝ 
-                <strong><?= $d->penerima ?></strong>
-            </div>
-
-            <!-- PESAN -->
-            <div class="mt-2 text-muted">
-                <?= $d->pesan ?>
-            </div>
-
-            <!-- BUTTON REVISI -->
-            <?php 
-            $role = $this->session->userdata('role');
-            if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
-                <div class="mt-3">
-                    <button class="btn btn-sm btn-success" 
-                    data-bs-toggle="modal" 
-                    data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
-                    <i class="fa fa-edit"></i> Revisi
-                </button>
+        <?php if ($this->session->flashdata('success')): ?>
+            <div class="alert alert-success">
+                <?= $this->session->flashdata('success') ?>
             </div>
         <?php endif; ?>
 
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h3 class="h5 mb-0">Timeline Dokumen</h3>
+        </div>
+
+        <div id="message" class="mt-3 d-none"></div>
+
+
+        <div id="tl_alert" class="alert d-none mt-2"></div>
+
+        <?php 
+        $badge = [
+            'draft'       => 'secondary',
+            'ajuan_baru'  => 'primary',
+            'revisi'      => 'warning',
+            'ajuan_revisi'  => 'warning',
+            'disetujui'   => 'success'
+        ];
+
+        $lastIndex = count($timeline) - 1;
+        ?>
+
+        <?php foreach ($timeline as $i => $d): ?>
+
+            <?php
+            $justifyClass = ($i % 2 == 0) ? 'justify-content-start' : 'justify-content-end';
+            $textAlign    = ($i % 2 == 0) ? 'text-start' : 'text-end';
+            ?>
+
+            <div class="d-flex <?= $justifyClass ?>">
+                <div class="mb-3 p-3 border rounded bg-light w-100 <?= $textAlign ?>">
+
+                    <!-- STATUS -->
+                    <div>
+                        <span class="badge bg-<?= $badge[$d->status] ?? 'secondary' ?>">
+                            <?= $d->status ?>
+                        </span>
+                    </div>
+
+                    <!-- TIMESTAMP (dibawah status) -->
+                    <div class="mt-1">
+                        <small><?= $d->created_at ?></small>
+                    </div>
+
+                    <!-- PENGIRIM → PENERIMA -->
+                    <div class="mt-2">
+                        <strong><?= $d->pengirim ?></strong> ➝ 
+                        <strong><?= $d->penerima ?></strong>
+                    </div>
+
+                    <!-- PESAN -->
+                    <div class="mt-2 text-muted">
+                        <?= $d->pesan ?>
+                    </div>
+
+                    <!-- BUTTON REVISI -->
+                    <?php 
+                    $role = $this->session->userdata('role');
+                    if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
+                        <div class="mt-3">
+                            <button class="btn btn-sm btn-success" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
+                            <i class="fa fa-edit"></i> Revisi
+                        </button>
+                    </div>
+                <?php endif; ?>
+
+            </div>
+        </div>
+
+        <?php endforeach; ?>
+
+        <?php 
+        $role = $this->session->userdata('role');
+        $lastTimeline = $timeline[$lastIndex] ?? null;
+        $showFormTL = (
+            $role == 'ppk' && 
+            $lastTimeline && 
+            in_array($lastTimeline->status, ['ajuan_baru', 'ajuan_revisi'])
+        );
+        ?>
+
+        <?php if ($showFormTL): ?>
+            <form id="formTL">
+                <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>" id="tl_id">
+
+                <div class="mb-3">
+                    <label>Tindak Lanjut</label>
+                    <select name="aksi" id="tl_status" class="form-control" required>
+                        <option value="">-- pilih --</option>
+                        <option value="revisi">Revisi</option>
+                        <option value="disetujui">ACC</option>
+                    </select>
+                </div>
+
+                <div class="mb-3 d-none" id="wrap_pesan">
+                    <label>Pesan Revisi</label>
+                    <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
+                </div>
+
+                <button class="btn btn-primary w-100">Kirim</button>
+            </form>
+        <?php endif; ?>
+    </div>
+
+    <?php
+    function format_text_list($text) {
+        $text = trim($text ?? '');
+
+        if (!$text) return '-';
+
+        if (strpos($text, "\n") !== false) {
+            $lines = array_filter(array_map('trim', explode("\n", $text)));
+            $html = '<ol class="mb-0">';
+            foreach ($lines as $line) {
+                $html .= '<li>' . htmlspecialchars($line) . '</li>';
+            }
+            $html .= '</ol>';
+            return $html;
+        }
+
+        return htmlspecialchars($text);
+    }
+    ?>
+
+
+    <div class="col-md-6 col-12 scroll-col">
+        <?php foreach ($documents as $doc): ?>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Detail Dokumen</h5>
+            </div>
+
+            <div class="card-body">
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Unit Organisasi</div>
+                    <div class="col-md-8"><?= $doc->unit_organisasi ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Program</div>
+                    <div class="col-md-8"><?= $doc->program ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kegiatan</div>
+                    <div class="col-md-8"><?= $doc->kegiatan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">KRO</div>
+                    <div class="col-md-8"><?= $doc->kro ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">RO</div>
+                    <div class="col-md-8"><?= $doc->ro ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Komponen</div>
+                    <div class="col-md-8"><?= $doc->komponen ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kode Anggaran</div>
+                    <div class="col-md-8"><?= $doc->kode_anggaran ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Akun Anggaran</div>
+                    <div class="col-md-8"><?= $doc->akun_anggaran ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kab/Kota</div>
+                    <div class="col-md-8"><?= $doc->kota_kegiatan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Provinsi</div>
+                    <div class="col-md-8"><?= $doc->provinsi ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Tahun Anggaran</div>
+                    <div class="col-md-8"><?= $doc->tahun_anggaran ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Dasar Hukum</div>
+                    <div class="col-md-8"><?= format_text_list($doc->dasar_hukum) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Gambaran Umum</div>
+                    <div class="col-md-8"><?= format_text_list($doc->gambaran_umum) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Maksud & Tujuan</div>
+                    <div class="col-md-8"><?= format_text_list($doc->maksud_tujuan) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Keluaran</div>
+                    <div class="col-md-8"><?= format_text_list($doc->keluaran) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Nama Kegiatan</div>
+                    <div class="col-md-8"><?= $doc->nama_kegiatan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Waktu</div>
+                    <div class="col-md-8"><?= $doc->waktu ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Tanggal Bayar</div>
+                    <div class="col-md-8"><?= $doc->tanggal_bayar ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Lokasi</div>
+                    <div class="col-md-8"><?= $doc->lokasi ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Volume</div>
+                    <div class="col-md-8"><?= $doc->vol ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Satuan</div>
+                    <div class="col-md-8"><?= $doc->satuan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Biaya</div>
+                    <div class="col-md-8"><?= $doc->biaya ?? '-' ?></div>
+                </div>
+
+                <hr>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">PPK</div>
+                    <div class="col-md-8"><?= $doc->nama_ppk ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">NIP PPK</div>
+                    <div class="col-md-8"><?= $doc->nip_ppk ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kepala</div>
+                    <div class="col-md-8"><?= isset($kepala) ? $kepala->nama : '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">NIP Kepala</div>
+                    <div class="col-md-8"><?= isset($kepala) ? $kepala->nip : '-' ?></div>
+                </div>
+
+            </div>
+        </div>
+
+        <?php endforeach; ?>
     </div>
 </div>
 
-<?php endforeach; ?>
 
 <?php foreach ($documents as $doc): ?>
 
@@ -259,38 +466,6 @@ $lastIndex = count($timeline) - 1;
         </div>
     </div>
 <?php endforeach; ?>
-
-<?php 
-$role = $this->session->userdata('role');
-$lastTimeline = $timeline[$lastIndex] ?? null;
-$showFormTL = (
-    $role == 'ppk' && 
-    $lastTimeline && 
-    in_array($lastTimeline->status, ['ajuan_baru', 'ajuan_revisi'])
-);
-?>
-
-<?php if ($showFormTL): ?>
-    <form id="formTL">
-        <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>" id="tl_id">
-
-        <div class="mb-3">
-            <label>Tindak Lanjut</label>
-            <select name="aksi" id="tl_status" class="form-control" required>
-                <option value="">-- pilih --</option>
-                <option value="revisi">Revisi</option>
-                <option value="disetujui">ACC</option>
-            </select>
-        </div>
-
-        <div class="mb-3 d-none" id="wrap_pesan">
-            <label>Pesan Revisi</label>
-            <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
-        </div>
-
-        <button class="btn btn-primary w-100">Kirim</button>
-    </form>
-<?php endif; ?>
 
 
 <script>
