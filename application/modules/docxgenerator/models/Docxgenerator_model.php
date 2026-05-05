@@ -11,8 +11,18 @@ class Docxgenerator_model extends CI_Model {
     public function get_all()
     {
         return $this->db
-        ->order_by('created_at', 'DESC')
-        ->get($this->table)
+        ->select('
+            generated_documents.*,
+            pegawai.nama as nama_ppk,
+            pegawai.nip as nip_ppk,
+            anggaran.kode_akun,
+            anggaran.nama_kegiatan as nama_anggaran
+            ')
+        ->from('generated_documents')
+        ->join('pegawai', 'pegawai.id = generated_documents.ppk_id', 'left')
+        ->join('anggaran', 'anggaran.kode_akun = generated_documents.kode_anggaran', 'left')
+        ->order_by('generated_documents.created_at', 'DESC')
+        ->get()
         ->result();
     }
 
@@ -276,10 +286,13 @@ class Docxgenerator_model extends CI_Model {
     public function get_logs_dokumen($id)
     {
         return $this->db
-        ->where('id_dokumen', $id)
-        ->order_by('created_at', 'ASC')
-        ->get('log_dokumen')
-        ->result();
+            ->select('log_dokumen.*, generated_documents.file_doc')
+            ->from('log_dokumen')
+            ->join('generated_documents', 'generated_documents.id = log_dokumen.id_dokumen', 'left')
+            ->where('log_dokumen.id_dokumen', $id)
+            ->order_by('log_dokumen.created_at', 'ASC')
+            ->get()
+            ->result();
     }
 
     public function getPengirimTerakhir($id_dokumen)

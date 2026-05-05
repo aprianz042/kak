@@ -1,4 +1,7 @@
-<?php $active = $this->router->fetch_class(); ?>
+<?php 
+    $active = $this->router->fetch_class();
+    $role = $this->session->userdata('role'); 
+?>
 
 <aside class="d-flex flex-column flex-shrink-0 bg-light border-end h-100">
  <!-- LOGO + TITLE -->
@@ -15,23 +18,39 @@
 <!-- Menu -->
 <nav class="nav nav-pills flex-column mb-auto p-3 gap-1">
 
+    <!-- Dashboard (semua role) -->
     <a href="<?= base_url('home') ?>"
        class="nav-link d-flex align-items-center <?= $active == 'home' ? 'active' : 'link-dark' ?>">
        <span class="me-2">🏠</span>
        <span>Dashboard</span>
-   </a>
+    </a>
 
-   <a href="<?= base_url('docxgenerator') ?>"
-       class="nav-link d-flex align-items-center <?= $active == 'docxgenerator' ? 'active' : 'link-dark' ?>">
-       <span class="me-2">📄</span>
-       <span>DOCX Generator</span>
-   </a>
+    <!-- DOCX Generator (operator & ppk) -->
+    <?php if ($role == 'operator' || $role == 'ppk'): ?>
+        <a href="<?= base_url('docxgenerator') ?>"
+           class="nav-link d-flex align-items-center <?= $active == 'docxgenerator' ? 'active' : 'link-dark' ?>">
+           <span class="me-2">📄</span>
+           <span>DOCX Generator</span>
+        </a>
+    <?php endif; ?>
 
-   <a href="<?= base_url('pegawai') ?>"
-       class="nav-link d-flex align-items-center <?= $active == 'pegawai' ? 'active' : 'link-dark' ?>">
-       <span class="me-2">👥</span>
-       <span>Pegawai</span>
-   </a>
+    <!-- Pegawai (admin saja) -->
+    <?php if ($role == 'admin'): ?>
+        <a href="<?= base_url('pegawai') ?>"
+           class="nav-link d-flex align-items-center <?= $active == 'pegawai' ? 'active' : 'link-dark' ?>">
+           <span class="me-2">👥</span>
+           <span>Pegawai</span>
+        </a>
+    <?php endif; ?>
+
+    <!-- Anggaran (admin & ppk) -->
+    <?php if ($role == 'admin' || $role == 'ppk'): ?>
+        <a href="<?= base_url('anggaran') ?>"
+           class="nav-link d-flex align-items-center <?= $active == 'anggaran' ? 'active' : 'link-dark' ?>">
+           <span class="me-2">💰</span>
+           <span>Anggaran</span>
+        </a>
+    <?php endif; ?>
 
 </nav>
 

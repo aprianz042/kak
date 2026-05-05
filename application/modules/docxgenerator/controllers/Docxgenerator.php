@@ -38,18 +38,9 @@ class Docxgenerator extends Authenticated_Controller {
             $data['documents'] = $this->Docxgenerator_model->get_doc_ppk($id_user);
             $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
         }
-        elseif ($role == "kepala")
-        {
-            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
-        }
-        elseif ($role == "admin")
-        {
-            $data['documents'] = $this->Docxgenerator_model->get_all(); 
-            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
-        }
         else
         {
-            $data['content'] = $this->load->view('docxgenerator_view_ppk', $data, TRUE);
+            redirect('home'); // arahkan ke controller home
         }
 
         $this->load->view('layouts/main', $data);

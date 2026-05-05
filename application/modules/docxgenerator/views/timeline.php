@@ -18,11 +18,11 @@
 
         <?php 
         $badge = [
-            'draft'       => 'secondary',
-            'ajuan_baru'  => 'primary',
-            'revisi'      => 'warning',
+            'draft'         => 'secondary',
+            'ajuan_baru'    => 'primary',
+            'revisi'        => 'warning',
             'ajuan_revisi'  => 'warning',
-            'disetujui'   => 'success'
+            'disetujui'     => 'success'
         ];
 
         $lastIndex = count($timeline) - 1;
@@ -61,21 +61,26 @@
                         <?= $d->pesan ?>
                     </div>
 
-                    <!-- BUTTON REVISI -->
-                    <?php 
-                    $role = $this->session->userdata('role');
-                    if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
-                        <div class="mt-3">
-                            <button class="btn btn-sm btn-success" 
-                            data-bs-toggle="modal" 
-                            data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
-                            <i class="fa fa-edit"></i> Revisi
-                        </button>
-                    </div>
-                <?php endif; ?>
-
+                </div>
             </div>
-        </div>
+
+            <!-- BUTTON REVISI -->
+            <?php 
+            $role = $this->session->userdata('role');
+            if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
+                <div class="mt-3">
+                    <button class="btn btn-sm btn-success w-100" data-bs-toggle="modal" data-bs-target="#revisiModal<?= $d->id_dokumen ?>">
+                        <i class="fa fa-edit"></i> Revisi
+                    </button>
+                </div>
+            <?php endif; ?>
+
+            <?php 
+            if ($d->status === 'disetujui'): ?>
+                <div class="mt-3">
+                    <a class="btn btn-sm btn-primary w-100" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>"><i class="fa fa-download"></i> Download Dokumen</a>
+                </div>
+            <?php endif; ?>
 
         <?php endforeach; ?>
 
