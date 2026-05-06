@@ -25,6 +25,7 @@ class Pegawai extends Authenticated_Controller {
     // =========================
     public function simpan()
     {
+        $this->cek_role(['admin']);
         $this->form_validation->set_rules('nip', 'NIP', 'required|trim');
         $this->form_validation->set_rules('email', 'Email', 'required|trim|valid_email');
         $this->form_validation->set_rules('nama', 'Nama', 'required|trim');
@@ -76,6 +77,7 @@ class Pegawai extends Authenticated_Controller {
 
     public function get($id)
     {
+        $this->cek_role(['admin']);
         echo json_encode($this->Pegawai_model->get_by_id($id));
     }
 
@@ -84,6 +86,7 @@ class Pegawai extends Authenticated_Controller {
     // =========================
     public function update()
     {
+        $this->cek_role(['admin']);
         $id = $this->input->post('id');
 
         if ($this->Pegawai_model->cek_email_edit($this->input->post('email'), $id)) {
@@ -116,6 +119,7 @@ class Pegawai extends Authenticated_Controller {
 
     public function hapus($id)
     {
+        $this->cek_role(['admin']);
         $hapus = $this->Pegawai_model->delete($id);
 
         echo json_encode([

@@ -48,6 +48,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function generate()
     {
+        $this->cek_role(['operator', 'ppk']);
+
         $baseName = 'dokumen_' . time();
 
         $unit_organisasi = $this->input->post('unit_organisasi', true);
@@ -333,6 +335,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function revisi()
     {
+        $this->cek_role(['operator']);
+
         $id_dokumen = $this->input->post('id_dokumen', true);
 
         // ambil data dokumen lama
@@ -583,6 +587,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function timeline_dok($id)
     {
+        $this->cek_role(['operator', 'ppk']);
+
         $id_user = $this->session->userdata('user_id');
         $nip = $this->session->userdata('nip');
         $role = $this->session->userdata('role');
@@ -599,6 +605,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function download_file($filename)
     {
+        $this->cek_role(['operator', 'ppk', 'kepala']);
+
         $filename = basename($filename);
         $downloadName = $filename . '.docx';
 
@@ -618,6 +626,7 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function download($file)
     {
+        $this->cek_role(['operator', 'ppk', 'kepala']);
         $path = FCPATH . 'storage/docx/' . $file;
 
         if (!file_exists($path)) {
@@ -633,6 +642,7 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function download_pdf($file)
     {
+        $this->cek_role(['operator', 'ppk', 'kepala']);
         $path = FCPATH . 'storage/pdf/' . $file;
 
         if (!file_exists($path)) {
@@ -743,6 +753,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function delete()
     {
+        $this->cek_role(['operator']);
+
         $id = (int) $this->input->post('id');
 
         if (!$id) {
@@ -769,6 +781,7 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function pengajuan($id_doc)
     {
+        $this->cek_role(['operator', 'ppk']);
         // ambil user login
         $nip = $this->session->userdata('nip');
 
@@ -814,6 +827,7 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function view_docx($filename)
     {
+        $this->cek_role(['operator', 'ppk']);
         $filename = basename($filename) . '.docx';
 
         $token = $this->input->get('token');
@@ -858,6 +872,8 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function tindak_lanjut()
     {
+        $this->cek_role(['operator','ppk']);
+
         $id_dokumen = (int) $this->input->post('id_dokumen');
         $aksi       = $this->input->post('aksi');
         $pesan      = $this->input->post('pesan');
@@ -909,6 +925,7 @@ class Docxgenerator extends Authenticated_Controller {
 
     public function tindak_lanjut_ppk()
     {
+        $this->cek_role(['ppk']);
         // ✅ Set header JSON di awal
         header('Content-Type: application/json');
         

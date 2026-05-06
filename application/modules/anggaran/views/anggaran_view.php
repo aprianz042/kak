@@ -1,6 +1,8 @@
 <div class="d-flex justify-content-between align-items-center mb-3">
     <h3 class="h5 mb-0">Daftar Anggaran</h3>
+    <?php if ($this->session->userdata('role') === 'operator') : ?>
     <button type="button" class="btn btn-primary" onclick="openTambahModal()">Tambah Anggaran</button>
+    <?php endif; ?>
 </div>
 
 <div id="message" class="mt-3 d-none"></div>
@@ -12,7 +14,9 @@
             <th>Kode Akun</th>
             <th>Kegiatan</th>
             <th>Pagu</th>
-            <th>Aksi</th>
+            <?php if ($this->session->userdata('role') === 'operator') : ?>
+                <th>Aksi</th>
+            <?php endif; ?>
         </tr>
     </thead>
     <tbody>
@@ -22,10 +26,12 @@
                 <td><?= htmlspecialchars($p->kode_akun) ?></td>
                 <td><?= htmlspecialchars($p->nama_kegiatan) ?></td>
                 <td>Rp. <?= number_format($p->pagu, 0, ',', '.').",-" ?></td>
+                <?php if ($this->session->userdata('role') === 'operator') : ?>
                 <td>
                     <button type="button" class="btn btn-sm btn-warning" onclick="openEditModal(<?= $p->id ?>)">Edit</button>
                     <button type="button" class="btn btn-sm btn-danger" onclick="hapusAnggaran(<?= $p->id ?>)">Hapus</button>
                 </td>
+                <?php endif; ?>
             </tr>
         <?php endforeach; ?>
     </tbody>

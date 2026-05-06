@@ -25,6 +25,8 @@ class Anggaran extends Authenticated_Controller {
     // =============================
     public function simpan()
     {
+        $this->cek_role(['operator']);
+
         $this->load->library('form_validation');
 
         $this->form_validation->set_rules('kode_akun',     'Kode Akun',  'required|trim|is_unique[anggaran.kode_akun]');
@@ -69,6 +71,7 @@ class Anggaran extends Authenticated_Controller {
     // =============================
     public function get($id)
     {
+        $this->cek_role(['operator']);
         $data = $this->Anggaran_model->get_by_id($id);
 
         if (!$data) {
@@ -87,6 +90,8 @@ class Anggaran extends Authenticated_Controller {
     // =============================
     public function update()
     {
+        $this->cek_role(['operator']);
+
         $id = $this->input->post('id');
 
         if (!$id) {
@@ -142,6 +147,8 @@ class Anggaran extends Authenticated_Controller {
     // =============================
     public function hapus($id)
     {
+        $this->cek_role(['operator']);
+
         $data = $this->Anggaran_model->get_by_id($id);
 
         if (!$data) {

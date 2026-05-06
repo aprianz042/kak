@@ -17,73 +17,43 @@
 </div>
 
 <div class="row g-3 mb-4">
-    <!-- DRAFT -->
+
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Draft</h6>
                 <h3 class="fw-bold mb-0"><?= $total_draft ?></h3>
-                <hr>
-                <?php foreach ($statistik_ppk as $ppk) : ?>
-                <div class="d-flex justify-content-between">
-                    <small class="text-muted"><?= $ppk->nama_ppk ?></small>
-                    <small class="fw-semibold"><?= $ppk->total_draft ?></small>
-                </div>
-                <?php endforeach; ?>
             </div>
         </div>
     </div>
 
-    <!-- DALAM PROSES -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Dalam Proses</h6>
                 <h3 class="fw-bold mb-0"><?= $total_lainnya ?></h3>
-                <hr>
-                <?php foreach ($statistik_ppk as $ppk) : ?>
-                <div class="d-flex justify-content-between">
-                    <small class="text-muted"><?= $ppk->nama_ppk ?></small>
-                    <small class="fw-semibold"><?= $ppk->total_lainnya ?></small>
-                </div>
-                <?php endforeach; ?>
             </div>
         </div>
     </div>
 
-    <!-- SELESAI -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Selesai</h6>
                 <h3 class="fw-bold mb-0"><?= $total_disetujui ?></h3>
-                <hr>
-                <?php foreach ($statistik_ppk as $ppk) : ?>
-                <div class="d-flex justify-content-between">
-                    <small class="text-muted"><?= $ppk->nama_ppk ?></small>
-                    <small class="fw-semibold"><?= $ppk->total_disetujui ?></small>
-                </div>
-                <?php endforeach; ?>
             </div>
         </div>
     </div>
 
-    <!-- DITOLAK -->
     <div class="col-12 col-sm-6 col-lg-3">
         <div class="card text-center shadow-sm">
             <div class="card-body">
                 <h6 class="text-muted">Ditolak</h6>
                 <h3 class="fw-bold mb-0"><?= $total_ditolak ?></h3>
-                <hr>
-                <?php foreach ($statistik_ppk as $ppk) : ?>
-                <div class="d-flex justify-content-between">
-                    <small class="text-muted"><?= $ppk->nama_ppk ?></small>
-                    <small class="fw-semibold"><?= $ppk->total_ditolak ?></small>
-                </div>
-                <?php endforeach; ?>
             </div>
         </div>
     </div>
+
 </div>
 
 <div class="d-flex align-items-center gap-3 my-4">
