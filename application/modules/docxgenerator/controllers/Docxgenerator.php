@@ -46,7 +46,7 @@ class Docxgenerator extends Authenticated_Controller {
         $this->load->view('layouts/main', $data);
     }
 
-    public function generate()
+    public function generate_backup()
     {
         $this->cek_role(['operator', 'ppk']);
 
@@ -585,6 +585,308 @@ class Docxgenerator extends Authenticated_Controller {
         redirect('docxgenerator/timeline_dok/' . $id_dokumen);
     }
 
+    public function generate()
+    {
+        $this->cek_role(['operator', 'ppk']);
+
+        $baseName = 'dokumen_' . time();
+
+        $unit_organisasi = $this->input->post('unit_organisasi', true);
+        $program = $this->input->post('program', true);
+        $kegiatan = $this->input->post('kegiatan', true);
+        $kro = $this->input->post('kro', true);
+        $ro = $this->input->post('ro', true);
+        $komponen = $this->input->post('komponen', true);
+        $kode_anggaran = $this->input->post('kode_anggaran', true);
+        $akun_anggaran = $this->input->post('akun_anggaran', true);
+
+        $regency_id = $this->input->post('regency_id', true);
+
+        $wil = $this->Docxgenerator_model->get_regency_with_province($regency_id);
+        if (!$wil) {
+            show_error('Kab/Kota tidak valid atau tidak ditemukan di database wilayah.');
+        }
+
+        $kota_kegiatan = $wil['regency_name'];
+        $provinsi = $wil['province_name'];
+
+        $tahun_anggaran = $this->input->post('tahun_anggaran', true);
+        $dasar_hukum = $this->input->post('dasar_hukum', true);
+        $gambaran_umum = $this->input->post('gambaran_umum', true);
+        $maksud_tujuan = $this->input->post('maksud_tujuan', true);
+        $keluaran = $this->input->post('keluaran', true);
+        $nama_kegiatan = $this->input->post('nama_kegiatan', true);
+        $waktu = $this->input->post('waktu', true);
+        $tanggal_bayar = $this->input->post('tanggal_bayar', true);
+        $lokasi = $this->input->post('lokasi', true);
+        $vol = $this->input->post('vol', true);
+        $satuan = $this->input->post('satuan', true);
+        $biaya = $this->input->post('biaya', true);
+
+        $ppk_id = $this->input->post('ppk', true);
+        $ppk = $this->Docxgenerator_model->get_ppk_by_id($ppk_id);
+
+        if (!$ppk) {
+            show_error('PPK tidak valid atau tidak ditemukan');
+        }
+
+        $kepala = $this->input->post('kepala', true);
+        $nip_kepala = $this->input->post('nip_kepala', true);
+
+        // format tanggal Indonesia
+        setlocale(LC_TIME, 'id_ID.UTF-8');
+        $tanggal_buat = strftime('%d %B %Y');
+
+        $templatePath = APPPATH . 'templates/template_kak.docx';
+        if (!file_exists($templatePath)) {
+            show_error('Template DOCX tidak ditemukan');
+        }
+
+        $template = new TemplateProcessor($templatePath);
+
+        // Proses untuk memasukkan data ke dalam database (sebelum pembuatan dokumen)
+        $documentData = [
+            'unit_organisasi' => $unit_organisasi,
+            'program'         => $program,
+            'kegiatan'        => $kegiatan,
+            'kro'             => $kro,
+            'ro'              => $ro,
+            'komponen'        => $komponen,
+            'kode_anggaran'   => $kode_anggaran,
+            'akun_anggaran'   => $akun_anggaran,
+            'kota_kegiatan'   => $kota_kegiatan,
+            'provinsi'        => $provinsi,
+            'tahun_anggaran'  => $tahun_anggaran,
+            'dasar_hukum'     => $dasar_hukum,
+            'gambaran_umum'   => $gambaran_umum,
+            'maksud_tujuan'   => $maksud_tujuan,
+            'keluaran'        => $keluaran,
+            'nama_kegiatan'   => $nama_kegiatan,
+            'waktu'           => $waktu,
+            'tanggal_bayar'   => $tanggal_bayar,
+            'lokasi'          => $lokasi,
+            'vol'             => $vol,
+            'satuan'          => $satuan,
+            'biaya'           => $biaya,
+            'ppk_id'          => $ppk_id,
+            'kepala'          => $kepala,
+            'nip_kepala'      => $nip_kepala,
+            'created_at'      => date('Y-m-d H:i:s'),
+            'file_doc'        => $baseName,
+            'id_creator'      => $this->session->userdata('user_id'),
+            'status'          => 'draft'
+        ];
+
+        // Simpan data dokumen ke dalam database
+        $documentId = $this->Docxgenerator_model->save_document_data($documentData);
+
+        // ===== DASAR HUKUM =====
+        $dashum = [];
+
+        if (!empty($dasar_hukum)) {
+            $dashum = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $dasar_hukum))
+            ));
+        }
+
+        $count_dh = count($dashum);
+
+        if ($count_dh === 1) {
+            $template->cloneBlock('DH1_BLOCK', 1, true, true);
+            foreach ($dashum as $i => $item_dh) {
+                $template->setValue('item_dh#' . ($i + 1), $item_dh);
+            }
+            $template->cloneBlock('DASAR_HUKUM_BLOCK', 0, true, true);
+        } elseif ($count_dh > 1) {
+            $template->cloneBlock('DH1_BLOCK', 0, true, true);
+            $template->cloneBlock('DASAR_HUKUM_BLOCK', $count_dh, true, true);
+            foreach ($dashum as $i => $item_dh) {
+                $template->setValue('item_dh#' . ($i + 1), $item_dh);
+            }
+        } else {
+            $template->cloneBlock('DH1_BLOCK', 0, true, true);
+            $template->cloneBlock('DASAR_HUKUM_BLOCK', 0, true, true);
+        }
+
+        // ===== MAKSUD TUJUAN =====
+        $maksud_tujuanArr = [];
+
+        if (!empty($maksud_tujuan)) {
+            $maksud_tujuanArr = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $maksud_tujuan))
+            ));
+        }
+
+        $count_mt = count($maksud_tujuanArr);
+
+        if ($count_mt === 1) {
+            $template->cloneBlock('MT_SATU', 1, true, true);
+            foreach ($maksud_tujuanArr as $i => $item_mt) {
+                $template->setValue('item_mt#' . ($i + 1), $item_mt);
+            }
+            $template->cloneBlock('MAKSUD_TUJUAN_BLOCK', 0, true, true);
+        } elseif ($count_mt > 1) {
+            $template->cloneBlock('MT_SATU', 0, true, true);
+            $template->cloneBlock('MAKSUD_TUJUAN_BLOCK', $count_mt, true, true);
+            foreach ($maksud_tujuanArr as $i => $item_mt) {
+                $template->setValue('item_mt#' . ($i + 1), $item_mt);
+            }
+        } else {
+            $template->cloneBlock('MT_SATU', 0, true, true);
+            $template->cloneBlock('MAKSUD_TUJUAN_BLOCK', 0, true, true);
+        }
+
+        // ===== KELUARAN =====
+        $keluaranArr = [];
+
+        if (!empty($keluaran)) {
+            $keluaranArr = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $keluaran))
+            ));
+        }
+
+        $count_kl = count($keluaranArr);
+
+        if ($count_kl === 1) {
+            $template->cloneBlock('KELUARAN_SATU', 1, true, true);
+            foreach ($keluaranArr as $i => $item_kl) {
+                $template->setValue('item_kl#' . ($i + 1), $item_kl);
+            }
+            $template->cloneBlock('KELUARAN_BLOCK', 0, true, true);
+        } elseif ($count_kl > 1) {
+            $template->cloneBlock('KELUARAN_SATU', 0, true, true);
+            $template->cloneBlock('KELUARAN_BLOCK', $count_kl, true, true);
+            foreach ($keluaranArr as $i => $item_kl) {
+                $template->setValue('item_kl#' . ($i + 1), $item_kl);
+            }
+        } else {
+            $template->cloneBlock('KELUARAN_SATU', 0, true, true);
+            $template->cloneBlock('KELUARAN_BLOCK', 0, true, true);
+        }
+
+        $vol_num         = (float) preg_replace('/[^\d.]/', '', (string)$vol);
+        $biaya_num       = (float) preg_replace('/[^\d.]/', '', (string)$biaya);
+        $total_biaya     = $vol_num * $biaya_num;
+        $terbilang_total = $this->terbilang_rupiah($total_biaya);
+
+        $template->setValue('unit_organisasi', $unit_organisasi);
+        $template->setValue('program', $program);
+        $template->setValue('kegiatan', $kegiatan);
+        $template->setValue('kro', $kro);
+        $template->setValue('ro', $ro);
+        $template->setValue('komponen', $komponen);
+        $template->setValue('kode_anggaran', $kode_anggaran);
+        $template->setValue('akun_anggaran', $akun_anggaran);
+        $template->setValue('kota_kegiatan', $kota_kegiatan);
+        $template->setValue('prov_kegiatan', $provinsi);
+        $template->setValue('tahun_anggaran', $tahun_anggaran);
+        $template->setValue('dasar_hukum', $item_dh ?? '');
+        $template->setValue('gambaran_umum', $gambaran_umum ?: '-');
+        $template->setValue('maksud_tujuan', $item_mt ?? '');
+        $template->setValue('keluaran', $item_kl ?? '');
+        $template->setValue('nama_kegiatan', $nama_kegiatan);
+        $template->setValue('waktu', $waktu);
+        $template->setValue('tanggal_bayar', $tanggal_bayar);
+        $template->setValue('lokasi', $lokasi);
+        $template->setValue('vol', $vol);
+        $template->setValue('satuan', $satuan);
+        $template->setValue('biaya', $this->format_angka_rupiah($biaya));
+        $template->setValue('total_biaya', $this->format_angka_rupiah($total_biaya));
+        $template->setValue('terbilang_total', $terbilang_total);
+        $template->setValue('tanggal_buat', $tanggal_buat);
+        $template->setValue('nama_ppk', $ppk['nama']);
+        $template->setValue('nip_ppk', $ppk['nip']);
+        $template->setValue('nama_kepala', $kepala);
+        $template->setValue('nip_kepala', $nip_kepala);
+
+        // ===== SIMPAN DOCX =====
+        $outputDirDocx = FCPATH . 'storage/docx/';
+        if (!is_dir($outputDirDocx)) {
+            mkdir($outputDirDocx, 0777, true);
+        }
+
+        $docxName = $baseName . '.docx';
+        $docxPath = $outputDirDocx . $docxName;
+
+        $template->saveAs($docxPath);
+
+        // ===== GENERATE PDF (DomPDF) =====
+        $outputDirPdf = FCPATH . 'storage/pdf/';
+        if (!is_dir($outputDirPdf)) {
+            mkdir($outputDirPdf, 0777, true);
+        }
+
+        $pdfName = $baseName . '.pdf';
+        $pdfPath = $outputDirPdf . $pdfName;
+
+        $pdfData = [
+            'unit_organisasi'  => $unit_organisasi,
+            'program'          => $program,
+            'kegiatan'         => $kegiatan,
+            'kro'              => $kro,
+            'ro'               => $ro,
+            'komponen'         => $komponen,
+            'kode_anggaran'    => $kode_anggaran,
+            'akun_anggaran'    => $akun_anggaran,
+            'kota_kegiatan'    => $kota_kegiatan,
+            'provinsi'         => $provinsi,
+            'tahun_anggaran'   => $tahun_anggaran,
+            'gambaran_umum'    => $gambaran_umum,
+            'nama_kegiatan'    => $nama_kegiatan,
+            'waktu'            => $waktu,
+            'tanggal_bayar'    => $tanggal_bayar,
+            'lokasi'           => $lokasi,
+            'vol'              => $vol,
+            'satuan'           => $satuan,
+            'biaya_fmt'        => $this->format_angka_rupiah($biaya),
+            'total_biaya_fmt'  => $this->format_angka_rupiah($total_biaya),
+            'terbilang_total'  => $terbilang_total,
+            'dashum'           => $dashum,
+            'maksud_tujuanArr' => $maksud_tujuanArr,
+            'keluaranArr'      => $keluaranArr,
+            'nama_ppk'         => $ppk['nama'],
+            'nip_ppk'          => $ppk['nip'],
+            'nama_kepala'      => $kepala,
+            'nip_kepala'       => $nip_kepala,
+            'tanggal_buat'     => $tanggal_buat,
+        ];
+
+        $this->generate_pdf_dompdf($pdfData, $pdfPath);
+
+        $this->session->set_flashdata('success', 'Dokumen berhasil dibuat');
+        $this->session->set_flashdata('file_docx', $docxName);
+        $this->session->set_flashdata('file_pdf', $pdfName);
+
+        redirect('docxgenerator');
+    }
+
+    // ===== HELPER: GENERATE PDF DENGAN DOMPDF =====
+    // Letakkan method ini di dalam class Docxgenerator,
+    // bisa di bawah method generate() atau di bagian bawah class.
+    private function generate_pdf_dompdf(array $pdfData, string $pdfPath): bool
+    {
+        try {
+            $html = $this->load->view('pdf/template_kak_pdf', $pdfData, TRUE);
+
+            $options = new \Dompdf\Options();
+            $options->set('isHtml5ParserEnabled', true);
+            $options->set('isRemoteEnabled', false);
+            $options->set('defaultFont', 'Arial');
+
+            $dompdf = new \Dompdf\Dompdf($options);
+            $dompdf->loadHtml($html, 'UTF-8');
+            $dompdf->setPaper('A4', 'portrait');
+            $dompdf->render();
+
+            file_put_contents($pdfPath, $dompdf->output());
+            return true;
+
+        } catch (\Exception $e) {
+            log_message('error', 'DomPDF generate failed: ' . $e->getMessage());
+            return false;
+        }
+    }
+
     public function timeline_dok($id)
     {
         $this->cek_role(['operator', 'ppk']);
@@ -965,6 +1267,95 @@ class Docxgenerator extends Authenticated_Controller {
             $this->db->trans_commit();
             echo json_encode(['status' => true, 'message' => 'Berhasil']);
         }
+    }
+
+
+    public function debug_html_pdf($id_dokumen)
+    {
+        // Hanya bisa diakses role tertentu (sesuaikan kebutuhan)
+        $this->cek_role(['operator', 'ppk']);
+
+        // ===== AMBIL DATA DOKUMEN =====
+        $doc = $this->Docxgenerator_model->get_document_by_id($id_dokumen);
+
+        if (!$doc) {
+            show_error('Dokumen dengan ID ' . $id_dokumen . ' tidak ditemukan.');
+        }
+
+        // ===== AMBIL DATA PPK =====
+        $ppk = $this->Docxgenerator_model->get_ppk_by_id($doc->ppk_id);
+
+        if (!$ppk) {
+            show_error('PPK tidak ditemukan untuk dokumen ini.');
+        }
+
+        // ===== PROSES DASAR HUKUM =====
+        $dashum = [];
+        if (!empty($doc->dasar_hukum)) {
+            $dashum = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $doc->dasar_hukum))
+            ));
+        }
+
+        // ===== PROSES MAKSUD TUJUAN =====
+        $maksud_tujuanArr = [];
+        if (!empty($doc->maksud_tujuan)) {
+            $maksud_tujuanArr = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $doc->maksud_tujuan))
+            ));
+        }
+
+        // ===== PROSES KELUARAN =====
+        $keluaranArr = [];
+        if (!empty($doc->keluaran)) {
+            $keluaranArr = array_values(array_filter(
+                array_map('trim', preg_split("/\r\n|\n|\r/", $doc->keluaran))
+            ));
+        }
+
+        // ===== HITUNG TOTAL BIAYA =====
+        $vol_num         = (float) preg_replace('/[^\d.]/', '', (string)$doc->vol);
+        $biaya_num       = (float) preg_replace('/[^\d.]/', '', (string)$doc->biaya);
+        $total_biaya     = $vol_num * $biaya_num;
+        $terbilang_total = $this->terbilang_rupiah($total_biaya);
+
+        // ===== SIAPKAN DATA UNTUK VIEW =====
+        $pdfData = [
+            'unit_organisasi'  => $doc->unit_organisasi,
+            'program'          => $doc->program,
+            'kegiatan'         => $doc->kegiatan,
+            'kro'              => $doc->kro,
+            'ro'               => $doc->ro,
+            'komponen'         => $doc->komponen,
+            'kode_anggaran'    => $doc->kode_anggaran,
+            'akun_anggaran'    => $doc->akun_anggaran,
+            'kota_kegiatan'    => $doc->kota_kegiatan,
+            'provinsi'         => $doc->provinsi,
+            'tahun_anggaran'   => $doc->tahun_anggaran,
+            'gambaran_umum'    => $doc->gambaran_umum,
+            'nama_kegiatan'    => $doc->nama_kegiatan,
+            'waktu'            => $doc->waktu,
+            'tanggal_bayar'    => $doc->tanggal_bayar,
+            'lokasi'           => $doc->lokasi,
+            'vol'              => $doc->vol,
+            'satuan'           => $doc->satuan,
+            'biaya_fmt'        => $this->format_angka_rupiah($doc->biaya),
+            'total_biaya_fmt'  => $this->format_angka_rupiah($total_biaya),
+            'terbilang_total'  => $terbilang_total,
+            'dashum'           => $dashum,
+            'maksud_tujuanArr' => $maksud_tujuanArr,
+            'keluaranArr'      => $keluaranArr,
+            'nama_ppk'         => $ppk['nama'],
+            'nip_ppk'          => $ppk['nip'],
+            'nama_kepala'      => $doc->kepala,
+            'nip_kepala'       => $doc->nip_kepala,
+            'tanggal_buat'     => date('d F Y', strtotime($doc->created_at)),
+        ];
+
+        // ===== RENDER HTML LANGSUNG KE BROWSER =====
+        // Tidak pakai layout main, langsung tampilkan HTML mentah
+        // supaya tampilan persis seperti yang akan di-render DomPDF
+        $this->load->view('pdf/template_kak_pdf', $pdfData);
     }
 
 }
