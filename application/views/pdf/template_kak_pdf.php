@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <style>
   /* ===== UKURAN KERTAS A4 ===== */
-  /* @page dipakai DomPDF untuk set ukuran & margin kertas */
   @page {
     size: A4 portrait;
     margin: 3cm 2cm 2.5cm 3cm; /* atas kanan bawah kiri */
@@ -17,30 +16,27 @@
     font-size: 11pt;
     color: #000;
     line-height: 1.4;
-
-    /* Lebar konten A4 = 21cm - 2cm - 3cm = 16cm */
-    width: 16cm;
-    margin: 0 auto; /* tengah saat di browser */
-    /* padding sengaja tidak dipakai — margin sudah diatur di @page */
+    width: 17cm;         /* A4: 21cm - 2cm (kanan) - 3cm (kiri) */
+    margin: 0 auto;
   }
 
   /* ===== COVER PAGE ===== */
-  /* Tinggi konten A4 = 29.7cm - 3cm (atas) - 2.5cm (bawah) = 24.2cm — sama dengan @page margin */
+  /* Tinggi konten A4 = 29.7cm - 3cm (atas) - 2.5cm (bawah) = 24.2cm */
   .cover-page {
     height: 24.2cm;
     display: flex;
     flex-direction: column;
   }
   .cover-page .judul-wrapper {
-    flex: 1;                  /* ambil sisa ruang setelah header-box */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;  /* judul vertikal di tengah sisa halaman */
+    justify-content: center;
     align-items: center;
     text-align: center;
   }
 
-  /* PAGE BREAK — DomPDF dan browser sama-sama menghormati ini */
+  /* ===== PAGE BREAK ===== */
   .page-break {
     page-break-after: always;
     break-after: page;
@@ -48,9 +44,10 @@
 
   /* ===== HEADER SURAT ===== */
   .header-box {
-    border: 2px solid #000;
-    padding: 10px 14px;
+    /*border: 2px solid #000;*/
+    padding: 10px 54px;
     margin-bottom: 16px;
+    font-weight: bold;
   }
   .header-box .to-label {
     font-size: 10pt;
@@ -59,12 +56,14 @@
   .header-box .to-value {
     font-size: 10pt;
     font-weight: bold;
+    margin-top: 20px;
     margin-bottom: 8px;
   }
   .header-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 10.5pt;
+    margin-top: 55px;
   }
   .header-table td {
     padding: 1px 4px;
@@ -98,36 +97,41 @@
     margin: 8px 0;
   }
 
-  /* ===== SECTION — tabel transparan 2 kolom: huruf | isi ===== */
+  /* ===== SECTION ===== */
   .section {
     margin-bottom: 12px;
   }
 
-  /* Tabel pembungkus seluruh section (huruf A. + konten) */
+  /*
+   * Tabel pembungkus seluruh section (huruf + konten).
+   * PENTING: padding: 0 hanya berlaku untuk direct children td,
+   * bukan td di dalam tabel anak (tabel-anggaran, list-table).
+   * Gunakan selector > tbody > tr > td atau > tr > td agar tidak
+   * merembes ke tabel bersarang.
+   */
   .section-table {
     width: 100%;
     border-collapse: collapse;
     font-size: 11pt;
   }
-  .section-table > tr > td,
-  .section-table tbody > tr > td {
+  /* Hanya td langsung milik section-table yang padding-nya di-reset */
+  .section-table > tbody > tr > td,
+  .section-table > tr > td {
     border: none;
     padding: 0;
     vertical-align: top;
   }
 
-  /* Kolom kiri: huruf sub bab "A." "B." dst */
+  /* Kolom kiri: huruf sub-bab */
   .sec-label {
-    width: 1.6em;        /* cukup untuk "H." */
+    width: 1.6em;
     white-space: nowrap;
     font-weight: bold;
+    padding-top: 0 !important;
     padding-right: 4px !important;
   }
 
   /* Kolom kanan: judul + isi */
-  .sec-body {
-    /* mengambil sisa lebar halaman */
-  }
   .sec-title {
     font-weight: bold;
     font-size: 11pt;
@@ -139,7 +143,7 @@
     margin-bottom: 4px;
   }
 
-  /* ===== LIST di dalam section — tabel transparan 2 kolom: nomor | teks ===== */
+  /* ===== LIST di dalam section ===== */
   .list-table {
     width: 100%;
     border-collapse: collapse;
@@ -152,14 +156,21 @@
     vertical-align: top;
   }
   .list-table .list-no {
-    width: 2em;          /* cukup untuk "10." */
+    width: 2em;
     white-space: nowrap;
   }
   .list-table .list-text {
     text-align: justify;
   }
 
-  /* ===== TABEL ANGGARAN — border tetap tampil, tidak transparan ===== */
+  /* ===== TABEL ANGGARAN ===== */
+  /*
+   * Karena .tabel-anggaran bersarang di dalam .section-table,
+   * selector dengan spesifisitas lebih tinggi diperlukan agar
+   * padding: 0 dari .section-table tidak merembes ke sini.
+   * Menggunakan .tabel-anggaran th dan .tabel-anggaran td sudah cukup
+   * karena keduanya lebih spesifik dari selector > tr > td di atas.
+   */
   .tabel-anggaran {
     width: 100%;
     border-collapse: collapse;
@@ -168,14 +179,15 @@
   }
   .tabel-anggaran th {
     background-color: #d9d9d9;
-    border: 1px solid #000 !important;
-    padding: 4px 6px;
+    border: 1px solid #000;
+    padding: 6px 8px;
     text-align: center;
     font-weight: bold;
+    vertical-align: middle;
   }
   .tabel-anggaran td {
-    border: 1px solid #000 !important; /* override border:none dari section-table */
-    padding: 4px 6px;
+    border: 1px solid #000;
+    padding: 6px 8px;        /* padding kiri-kanan 8px agar tidak nempel tepi */
     vertical-align: top;
   }
   .tabel-anggaran td.text-center {
@@ -188,7 +200,7 @@
     font-weight: bold;
   }
 
-  /* ===== TTD / TANDA TANGAN ===== */
+  /* ===== TANDA TANGAN ===== */
   .ttd-wrapper {
     width: 100%;
     margin-top: 20px;
@@ -224,8 +236,10 @@
 
   <!-- HEADER SURAT -->
   <div class="header-box">
-    <div class="to-label">Ditujukan Kepada KPA:</div>
-    <div class="to-value">BPS Provinsi Kalimantan Barat<br>Di Badan Pusat Statistik Provinsi Kalimantan Barat</div>
+    <center>
+        <img src="../../assets/images/logo_bps.png">
+        <div class="to-value">Ditujukan Kepada KPA: BPS Provinsi Kalimantan Barat<br>Di Badan Pusat Statistik Provinsi Kalimantan Barat</div>
+    </center>
 
     <table class="header-table">
       <tr>
@@ -268,39 +282,24 @@
         <td class="sep">:</td>
         <td><?= htmlspecialchars($kota_kegiatan) ?></td>
       </tr>
-      <tr>
-        <td>Tahun Anggaran</td>
-        <td class="sep">:</td>
-        <td><?= htmlspecialchars($tahun_anggaran) ?></td>
-      </tr>
+      
     </table>
   </div>
 
   <!-- JUDUL — di tengah secara vertikal di sisa halaman -->
   <div class="judul-wrapper">
-    <h1>Kerangka Acuan Kerja (KAK)</h1>
-    <p><?= htmlspecialchars($nama_kegiatan) ?></p>
-    <p>BPS Provinsi Kalimantan Barat</p>
-    <p>Tahun Anggaran <?= htmlspecialchars($tahun_anggaran) ?></p>
+    <h1>Tahun Anggaran <?= htmlspecialchars($tahun_anggaran) ?></h1>
   </div>
 
 </div><!-- end .cover-page -->
 
-<!-- PAGE BREAK — isi dokumen mulai dari halaman 2 -->
+<!-- PAGE BREAK -->
 <div class="page-break"></div>
 
-<div class="divider"></div>
-
-<!-- ================================================================
-     HALAMAN 2+: ISI DOKUMEN
-     Semua section pakai konsep tabel transparan 2 kolom:
-     kolom kiri  = label/nomor (lebar fixed)
-     kolom kanan = isi/konten
-     Sehingga seluruh teks isi selalu rata sejajar satu sama lain.
-================================================================ -->
+<!-- <div class="divider"></div> -->
 
 <!-- ===== A. DASAR HUKUM ===== -->
-<div class="section">
+<div class="section">  
   <table class="section-table">
     <tr>
       <td class="sec-label">A.</td>
