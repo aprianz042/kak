@@ -12,6 +12,8 @@
         </div>
 
         <div id="message" class="mt-3 d-none"></div>
+
+
         <div id="tl_alert" class="alert d-none mt-2"></div>
 
         <?php 
@@ -22,34 +24,47 @@
             'ajuan_revisi'  => 'warning',
             'disetujui'     => 'success'
         ];
+
         $lastIndex = count($timeline) - 1;
         ?>
 
         <?php foreach ($timeline as $i => $d): ?>
+
             <?php
             $justifyClass = ($i % 2 == 0) ? 'justify-content-start' : 'justify-content-end';
             $textAlign    = ($i % 2 == 0) ? 'text-start' : 'text-end';
             ?>
+
             <div class="d-flex <?= $justifyClass ?>">
                 <div class="mb-3 p-3 border rounded bg-light w-100 <?= $textAlign ?>">
+
+                    <!-- STATUS -->
                     <div>
                         <span class="badge bg-<?= $badge[$d->status] ?? 'secondary' ?>">
                             <?= $d->status ?>
                         </span>
                     </div>
+
+                    <!-- TIMESTAMP (dibawah status) -->
                     <div class="mt-1">
                         <small><?= $d->created_at ?></small>
                     </div>
+
+                    <!-- PENGIRIM → PENERIMA -->
                     <div class="mt-2">
                         <strong><?= $d->pengirim ?></strong> ➝ 
                         <strong><?= $d->penerima ?></strong>
                     </div>
+
+                    <!-- PESAN -->
                     <div class="mt-2 text-muted">
                         <?= $d->pesan ?>
                     </div>
+
                 </div>
             </div>
 
+            <!-- BUTTON REVISI -->
             <?php 
             $role = $this->session->userdata('role');
             if ($role == 'operator' && $i === $lastIndex && $d->status === 'revisi'): ?>
@@ -60,11 +75,10 @@
                 </div>
             <?php endif; ?>
 
-            <?php if ($d->status === 'disetujui'): ?>
+            <?php 
+            if ($d->status === 'disetujui'): ?>
                 <div class="mt-3">
-                    <a class="btn btn-sm btn-primary w-100" href="<?= base_url('docxgenerator/download_pdf/'.$d->file_doc) ?>">
-                        <i class="fa fa-download"></i> Download Dokumen
-                    </a>
+                    <a class="btn btn-sm btn-primary w-100" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>"><i class="fa fa-download"></i> Download Dokumen</a>
                 </div>
             <?php endif; ?>
 
@@ -83,6 +97,7 @@
         <?php if ($showFormTL): ?>
             <form id="formTL">
                 <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>" id="tl_id">
+
                 <div class="mb-3">
                     <label>Tindak Lanjut</label>
                     <select name="aksi" id="tl_status" class="form-control" required>
@@ -91,20 +106,23 @@
                         <option value="disetujui">ACC</option>
                     </select>
                 </div>
+
                 <div class="mb-3 d-none" id="wrap_pesan">
                     <label>Pesan Revisi</label>
                     <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
                 </div>
+
                 <button class="btn btn-primary w-100">Kirim</button>
             </form>
         <?php endif; ?>
     </div>
 
     <?php
-    // ===== HELPER FUNCTIONS =====
     function format_text_list($text) {
         $text = trim($text ?? '');
+
         if (!$text) return '-';
+
         if (strpos($text, "\n") !== false) {
             $lines = array_filter(array_map('trim', explode("\n", $text)));
             $html = '<ol class="mb-0">';
@@ -114,320 +132,154 @@
             $html .= '</ol>';
             return $html;
         }
-        return htmlspecialchars($text);
-    }
 
-    function terbilang($angka) {
-        $angka = abs($angka);
-        $kata  = ['', 'satu', 'dua', 'tiga', 'empat', 'lima', 'enam', 'tujuh', 'delapan', 'sembilan',
-                  'sepuluh', 'sebelas'];
-        $hasil = '';
-        if ($angka < 12) {
-            $hasil = $kata[$angka];
-        } elseif ($angka < 20) {
-            $hasil = terbilang($angka - 10) . ' belas';
-        } elseif ($angka < 100) {
-            $hasil = terbilang(intval($angka / 10)) . ' puluh ' . terbilang($angka % 10);
-        } elseif ($angka < 200) {
-            $hasil = 'seratus ' . terbilang($angka - 100);
-        } elseif ($angka < 1000) {
-            $hasil = terbilang(intval($angka / 100)) . ' ratus ' . terbilang($angka % 100);
-        } elseif ($angka < 2000) {
-            $hasil = 'seribu ' . terbilang($angka - 1000);
-        } elseif ($angka < 1000000) {
-            $hasil = terbilang(intval($angka / 1000)) . ' ribu ' . terbilang($angka % 1000);
-        } elseif ($angka < 1000000000) {
-            $hasil = terbilang(intval($angka / 1000000)) . ' juta ' . terbilang($angka % 1000000);
-        } else {
-            $hasil = terbilang(intval($angka / 1000000000)) . ' miliar ' . terbilang($angka % 1000000000);
-        }
-        return trim($hasil);
+        return htmlspecialchars($text);
     }
     ?>
 
-    <!-- ===== KOLOM KANAN: PREVIEW DOKUMEN KAK INLINE ===== -->
+
     <div class="col-md-6 col-12 scroll-col">
         <?php foreach ($documents as $doc): ?>
 
-        <?php
-        // Siapkan variabel untuk template KAK
-        $unit_organisasi  = $doc->unit_organisasi ?? '-';
-        $program          = $doc->program ?? '-';
-        $kegiatan         = $doc->kegiatan ?? '-';
-        $kro              = $doc->kro ?? '-';
-        $ro               = $doc->ro ?? '-';
-        $komponen         = $doc->komponen ?? '-';
-        $kode_anggaran    = $doc->kode_anggaran ?? '-';
-        $akun_anggaran    = $doc->akun_anggaran ?? '-';
-        $kota_kegiatan    = $doc->kota_kegiatan ?? '-';
-        $provinsi         = $doc->provinsi ?? '-';
-        $tahun_anggaran   = $doc->tahun_anggaran ?? '-';
-        $nama_kegiatan    = $doc->nama_kegiatan ?? '-';
-        $waktu            = $doc->waktu ?? '-';
-        $tanggal_bayar    = $doc->tanggal_bayar ?? '-';
-        $lokasi           = $doc->lokasi ?? '-';
-        $vol              = $doc->vol ?? '-';
-        $satuan           = $doc->satuan ?? '-';
-        $biaya_raw        = (int) preg_replace('/[^0-9]/', '', $doc->biaya ?? '0');
-        $biaya_fmt        = number_format($biaya_raw, 0, ',', '.');
-        $total_biaya_fmt  = $biaya_fmt; // sesuaikan jika ada kalkulasi lain
-        $terbilang_total  = ucfirst(terbilang($biaya_raw)) . ' Rupiah';
-        $nama_ppk         = $doc->nama_ppk ?? '-';
-        $nip_ppk          = $doc->nip_ppk ?? '-';
-        $nama_kepala      = isset($kepala) ? $kepala->nama : '-';
-        $nip_kepala       = isset($kepala) ? $kepala->nip : '-';
-        $tanggal_buat     = date('d F Y');
-
-        // Dasar hukum, maksud tujuan, keluaran → array
-        $dashum           = array_filter(array_map('trim', explode("\n", $doc->dasar_hukum ?? '')));
-        $maksud_tujuanArr = array_filter(array_map('trim', explode("\n", $doc->maksud_tujuan ?? '')));
-        $keluaranArr      = array_filter(array_map('trim', explode("\n", $doc->keluaran ?? '')));
-        $gambaran_umum    = $doc->gambaran_umum ?? '';
-        ?>
-
         <div class="card mb-4">
-            <div class="card-header d-flex justify-content-between align-items-center">
-                <h5 class="mb-0">Preview Dokumen KAK</h5>
+            <div class="card-header">
+                <h5 class="mb-0">Detail Dokumen</h5>
             </div>
-            <div class="card-body p-0">
 
-                <!-- ===== INLINE RENDER KAK ===== -->
-                <div style="font-family: Arial, sans-serif; font-size: 11pt; color: #000; line-height: 1.4; padding: 1.5cm 1cm;">
+            <div class="card-body">
 
-                    <!-- HEADER SURAT -->
-                    <div style="text-align:center; font-weight:bold; margin-bottom:16px;">
-                        <div style="font-size:10pt; font-weight:bold; margin-top:12px;">
-                            Ditujukan Kepada KPA: BPS Provinsi Kalimantan Barat<br>
-                            Di Badan Pusat Statistik Provinsi Kalimantan Barat
-                        </div>
-                        <table style="width:100%; border-collapse:collapse; font-size:10.5pt; margin-top:20px; text-align:left;">
-                            <tr><td style="width:38%; padding:2px 4px;">Unit Organisasi</td><td style="width:2%;">:</td><td><?= htmlspecialchars($unit_organisasi) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">Program</td><td>:</td><td><?= htmlspecialchars($program) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">Kegiatan</td><td>:</td><td><?= htmlspecialchars($kegiatan) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">KRO</td><td>:</td><td><?= htmlspecialchars($kro) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">RO</td><td>:</td><td><?= htmlspecialchars($ro) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">Komponen</td><td>:</td><td><?= htmlspecialchars($komponen) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">Item Kegiatan</td><td>:</td><td>(<?= htmlspecialchars($kode_anggaran) ?>) <?= htmlspecialchars($akun_anggaran) ?></td></tr>
-                            <tr><td style="padding:2px 4px;">Lokasi Kegiatan</td><td>:</td><td><?= htmlspecialchars($kota_kegiatan) ?></td></tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Unit Organisasi</div>
+                    <div class="col-md-8"><?= $doc->unit_organisasi ?? '-' ?></div>
+                </div>
 
-                    <!-- JUDUL -->
-                    <div style="text-align:center; margin:20px 0 16px;">
-                        <h1 style="font-size:13pt; font-weight:bold; text-transform:uppercase; margin:0;">
-                            Tahun Anggaran <?= htmlspecialchars($tahun_anggaran) ?>
-                        </h1>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Program</div>
+                    <div class="col-md-8"><?= $doc->program ?? '-' ?></div>
+                </div>
 
-                    <hr style="border-top:2px solid #000; margin:8px 0 16px;">
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kegiatan</div>
+                    <div class="col-md-8"><?= $doc->kegiatan ?? '-' ?></div>
+                </div>
 
-                    <!-- A. DASAR HUKUM -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">A.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Dasar Hukum</div>
-                                    <div>Dasar hukum yang digunakan dalam kegiatan Tahun <?= htmlspecialchars($tahun_anggaran) ?> adalah:</div>
-                                    <?php if (count($dashum) === 1): ?>
-                                        <div><?= htmlspecialchars(reset($dashum)) ?></div>
-                                    <?php elseif (count($dashum) > 1): ?>
-                                        <table style="width:100%; border-collapse:collapse; font-size:11pt; margin-top:2px;">
-                                            <?php $j=1; foreach ($dashum as $item): ?>
-                                            <tr>
-                                                <td style="width:2em; vertical-align:top;"><?= $j++ ?>.</td>
-                                                <td style="text-align:justify;"><?= htmlspecialchars($item) ?></td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </table>
-                                    <?php else: ?>
-                                        <div>-</div>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">KRO</div>
+                    <div class="col-md-8"><?= $doc->kro ?? '-' ?></div>
+                </div>
 
-                    <!-- B. GAMBARAN UMUM -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">B.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Gambaran Umum</div>
-                                    <div style="text-align:justify;"><?= nl2br(htmlspecialchars($gambaran_umum ?: '-')) ?></div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">RO</div>
+                    <div class="col-md-8"><?= $doc->ro ?? '-' ?></div>
+                </div>
 
-                    <!-- C. MAKSUD DAN TUJUAN -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">C.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Maksud dan Tujuan Kegiatan</div>
-                                    <?php if (count($maksud_tujuanArr) === 1): ?>
-                                        <div><?= htmlspecialchars(reset($maksud_tujuanArr)) ?></div>
-                                    <?php elseif (count($maksud_tujuanArr) > 1): ?>
-                                        <table style="width:100%; border-collapse:collapse; font-size:11pt; margin-top:2px;">
-                                            <?php $j=1; foreach ($maksud_tujuanArr as $item): ?>
-                                            <tr>
-                                                <td style="width:2em; vertical-align:top;"><?= $j++ ?>.</td>
-                                                <td style="text-align:justify;"><?= htmlspecialchars($item) ?></td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </table>
-                                    <?php else: ?>
-                                        <div>-</div>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Komponen</div>
+                    <div class="col-md-8"><?= $doc->komponen ?? '-' ?></div>
+                </div>
 
-                    <!-- D. KELUARAN -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">D.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Keluaran/Output</div>
-                                    <?php if (count($keluaranArr) === 1): ?>
-                                        <div><?= htmlspecialchars(reset($keluaranArr)) ?></div>
-                                    <?php elseif (count($keluaranArr) > 1): ?>
-                                        <table style="width:100%; border-collapse:collapse; font-size:11pt; margin-top:2px;">
-                                            <?php $j=1; foreach ($keluaranArr as $item): ?>
-                                            <tr>
-                                                <td style="width:2em; vertical-align:top;"><?= $j++ ?>.</td>
-                                                <td style="text-align:justify;"><?= htmlspecialchars($item) ?></td>
-                                            </tr>
-                                            <?php endforeach; ?>
-                                        </table>
-                                    <?php else: ?>
-                                        <div>-</div>
-                                    <?php endif; ?>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kode Anggaran</div>
+                    <div class="col-md-8"><?= $doc->kode_anggaran ?? '-' ?></div>
+                </div>
 
-                    <!-- E. ORGANISASI PELAKSANA -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">E.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Organisasi yang Melaksanakan Kegiatan</div>
-                                    <div>Satker yang melaksanakan kegiatan adalah Badan Pusat Statistik Provinsi Kalimantan Barat.</div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Akun Anggaran</div>
+                    <div class="col-md-8"><?= $doc->akun_anggaran ?? '-' ?></div>
+                </div>
 
-                    <!-- F. WAKTU & TEMPAT -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">F.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Waktu dan Tempat Pelaksanaan Kegiatan</div>
-                                    <div style="text-align:justify;">
-                                        Waktu Pembayaran <?= htmlspecialchars($nama_kegiatan) ?> dilaksanakan mulai Bulan <?= htmlspecialchars($waktu) ?>,
-                                        paling lambat tanggal <?= htmlspecialchars($tanggal_bayar) ?> setiap bulannya dan tempat pelaksanaannya di
-                                        <?= htmlspecialchars($lokasi) ?>, <?= htmlspecialchars($kota_kegiatan) ?>, <?= htmlspecialchars($provinsi) ?>.
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kab/Kota</div>
+                    <div class="col-md-8"><?= $doc->kota_kegiatan ?? '-' ?></div>
+                </div>
 
-                    <!-- G. SUMBER DANA & BIAYA -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">G.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Sumber Dana dan Perkiraan Biaya</div>
-                                    <div style="text-align:justify; margin-bottom:8px;">
-                                        Total perkiraan biaya yang diperlukan untuk <?= htmlspecialchars($nama_kegiatan) ?>
-                                        sebesar <strong>Rp. <?= htmlspecialchars($total_biaya_fmt) ?>,-</strong>
-                                        (<?= htmlspecialchars($terbilang_total) ?>)/tahun yang akan dibebankan pada DIPA BPS Provinsi
-                                        dengan rincian anggaran biaya sebagai berikut:
-                                    </div>
-                                    <table style="width:100%; border-collapse:collapse; font-size:10.5pt;">
-                                        <thead>
-                                            <tr>
-                                                <th style="background:#d9d9d9; border:1px solid #000; padding:6px 8px; text-align:center;">PROGRAM/KEGIATAN/OUTPUT/KOMPONEN/AKUN/DETIL BPS Provinsi</th>
-                                                <th style="background:#d9d9d9; border:1px solid #000; padding:6px 8px; text-align:center;">Vol</th>
-                                                <th style="background:#d9d9d9; border:1px solid #000; padding:6px 8px; text-align:center;">Satuan</th>
-                                                <th style="background:#d9d9d9; border:1px solid #000; padding:6px 8px; text-align:center;">Jumlah Biaya</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td style="border:1px solid #000; padding:6px 8px;"><?= htmlspecialchars($kode_anggaran) ?> <?= htmlspecialchars($akun_anggaran) ?></td>
-                                                <td style="border:1px solid #000; padding:6px 8px; text-align:center;"><?= htmlspecialchars($vol) ?></td>
-                                                <td style="border:1px solid #000; padding:6px 8px; text-align:center;"><?= htmlspecialchars($satuan) ?></td>
-                                                <td style="border:1px solid #000; padding:6px 8px; text-align:right;">Rp. <?= htmlspecialchars($biaya_fmt) ?></td>
-                                            </tr>
-                                            <tr>
-                                                <td colspan="3" style="border:1px solid #000; padding:6px 8px; text-align:right; font-weight:bold;">Total</td>
-                                                <td style="border:1px solid #000; padding:6px 8px; text-align:right; font-weight:bold;">Rp. <?= htmlspecialchars($total_biaya_fmt) ?></td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Provinsi</div>
+                    <div class="col-md-8"><?= $doc->provinsi ?? '-' ?></div>
+                </div>
 
-                    <!-- H. PENUTUP -->
-                    <div style="margin-bottom:12px;">
-                        <table style="width:100%; border-collapse:collapse; font-size:11pt;">
-                            <tr>
-                                <td style="width:1.6em; vertical-align:top; font-weight:bold; padding-right:4px;">H.</td>
-                                <td style="vertical-align:top;">
-                                    <div style="font-weight:bold; margin-bottom:4px;">Penutup</div>
-                                    <div style="text-align:justify;">
-                                        Apabila terdapat hal-hal yang bertentangan dengan ketentuan, peraturan, pedoman, dan kebijaksanaan
-                                        pemerintah yang berlaku, maka segala yang termaktub di dalam Kerangka Acuan Kegiatan (KAK) akan
-                                        diteliti kembali. Hal-hal yang belum diatur dalam KAK akan ditetapkan lebih lanjut.
-                                        Demikian KAK ini dibuat untuk dipergunakan semestinya.
-                                    </div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Tahun Anggaran</div>
+                    <div class="col-md-8"><?= $doc->tahun_anggaran ?? '-' ?></div>
+                </div>
 
-                    <!-- TANDA TANGAN -->
-                    <div style="margin-top:20px;">
-                        <table style="width:100%; border-collapse:collapse;">
-                            <tr>
-                                <td style="width:50%; text-align:center; vertical-align:top; font-size:11pt; padding:0 10px;">
-                                    <div>Mengetahui</div>
-                                    <div style="margin-bottom:50px;">
-                                        Pejabat Pembuat Komitmen<br>
-                                        BPS Provinsi Kalimantan Barat
-                                    </div>
-                                    <div style="font-weight:bold; text-decoration:underline;"><?= htmlspecialchars($nama_ppk) ?></div>
-                                    <div style="font-size:10.5pt;">NIP. <?= htmlspecialchars($nip_ppk) ?></div>
-                                </td>
-                                <td style="width:50%; text-align:center; vertical-align:top; font-size:11pt; padding:0 10px;">
-                                    <div><?= htmlspecialchars($kota_kegiatan) ?>, <?= htmlspecialchars($tanggal_buat) ?></div>
-                                    <div style="margin-bottom:50px;">
-                                        Kepala Bagian Umum<br>
-                                        BPS Provinsi Kalimantan Barat
-                                    </div>
-                                    <div style="font-weight:bold; text-decoration:underline;"><?= htmlspecialchars($nama_kepala) ?></div>
-                                    <div style="font-size:10.5pt;">NIP. <?= htmlspecialchars($nip_kepala) ?></div>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Dasar Hukum</div>
+                    <div class="col-md-8"><?= format_text_list($doc->dasar_hukum) ?></div>
+                </div>
 
-                </div><!-- end inline render KAK -->
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Gambaran Umum</div>
+                    <div class="col-md-8"><?= format_text_list($doc->gambaran_umum) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Maksud & Tujuan</div>
+                    <div class="col-md-8"><?= format_text_list($doc->maksud_tujuan) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Keluaran</div>
+                    <div class="col-md-8"><?= format_text_list($doc->keluaran) ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Nama Kegiatan</div>
+                    <div class="col-md-8"><?= $doc->nama_kegiatan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Waktu</div>
+                    <div class="col-md-8"><?= $doc->waktu ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Tanggal Bayar</div>
+                    <div class="col-md-8"><?= $doc->tanggal_bayar ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Lokasi</div>
+                    <div class="col-md-8"><?= $doc->lokasi ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Volume</div>
+                    <div class="col-md-8"><?= $doc->vol ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Satuan</div>
+                    <div class="col-md-8"><?= $doc->satuan ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Biaya</div>
+                    <div class="col-md-8"><?= $doc->biaya ?? '-' ?></div>
+                </div>
+
+                <hr>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">PPK</div>
+                    <div class="col-md-8"><?= $doc->nama_ppk ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">NIP PPK</div>
+                    <div class="col-md-8"><?= $doc->nip_ppk ?? '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">Kepala</div>
+                    <div class="col-md-8"><?= isset($kepala) ? $kepala->nama : '-' ?></div>
+                </div>
+
+                <div class="row mb-2">
+                    <div class="col-md-4 fw-bold">NIP Kepala</div>
+                    <div class="col-md-8"><?= isset($kepala) ? $kepala->nip : '-' ?></div>
+                </div>
+
             </div>
         </div>
 
@@ -619,7 +471,6 @@
         </div>
     </div>
 <?php endforeach; ?>
-
 
 
 <script>

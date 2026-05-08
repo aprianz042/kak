@@ -18,6 +18,7 @@
     line-height: 1.4;
     width: 17cm;         /* A4: 21cm - 2cm (kanan) - 3cm (kiri) */
     margin: 0 auto;
+    padding: 80px 40px 50px 40px;
   }
 
   /* ===== COVER PAGE ===== */
@@ -34,6 +35,7 @@
     justify-content: center;
     align-items: center;
     text-align: center;
+    margin-top: 300px;
   }
 
   /* ===== PAGE BREAK ===== */
@@ -231,13 +233,20 @@
 </head>
 <body>
 
+<?php
+// CodeIgniter
+$logo_path = FCPATH . 'assets/images/logo_bps.png';
+$logo_base64 = base64_encode(file_get_contents($logo_path));
+$logo_src = 'data:image/png;base64,' . $logo_base64;
+?>
+
 <!-- ===== HALAMAN 1: COVER ===== -->
 <div class="cover-page">
 
   <!-- HEADER SURAT -->
   <div class="header-box">
     <center>
-        <img src="../../assets/images/logo_bps.png">
+        <img src="<?= $logo_src ?>">
         <div class="to-value">Ditujukan Kepada KPA: BPS Provinsi Kalimantan Barat<br>Di Badan Pusat Statistik Provinsi Kalimantan Barat</div>
     </center>
 

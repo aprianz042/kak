@@ -12,7 +12,7 @@
         * { margin:0; padding:0; box-sizing:border-box; }
         body {
             font-family:'Segoe UI',Tahoma,Geneva,Verdana,sans-serif;
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            /*background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);*/
             display:flex; justify-content:center; align-items:center;
             min-height:100vh; padding:20px;
         }
@@ -22,7 +22,7 @@
             overflow:hidden; width:100%; max-width:400px;
         }
         .login-header {
-            background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);
+            /*background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);*/
             padding:40px 30px; text-align:center; color:white;
         }
         .login-body { padding:40px 30px; }
@@ -45,7 +45,7 @@
     <div class="login-container">
         <div class="login-header">
             <img src="<?= base_url('assets/images/logo.png') ?>" alt="Logo" class="img-fluid mx-auto d-block mb-3" style="max-width: 60%;">
-            <p>Silakan login untuk melanjutkan</p>
+            <p style="color: #222;">Silakan login untuk melanjutkan</p>
         </div>
 
         <div class="login-body">
