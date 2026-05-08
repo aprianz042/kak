@@ -334,8 +334,16 @@ class Docxgenerator extends Authenticated_Controller {
             $total_biaya     = $vol_num * $biaya_num;
             $terbilang_total = $this->terbilang_rupiah($total_biaya);
 
-            setlocale(LC_TIME, 'id_ID.UTF-8');
-            $tanggal_buat = strftime('%d %B %Y');
+            $bulan_indo = [
+                1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+                5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+                9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+            ];
+
+            $date = new DateTime($dokumen->created_at);
+            $tanggal_indo = $date->format('d') . ' ' . $bulan_indo[(int)$date->format('n')] . ' ' . $date->format('Y');
+            
+            $tanggal_buat     = $tanggal_indo;
 
             $fileNames = $this->_generate_files([
                 'baseName'        => $dokumen->file_doc,
@@ -854,6 +862,16 @@ class Docxgenerator extends Authenticated_Controller {
             ));
         };
 
+        // Cara 1: Array bulan manual (paling reliable)
+        $bulan_indo = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $date = new DateTime('d F Y', strtotime($doc->created_at));
+        $tanggal_indo = $date->format('d') . ' ' . $bulan_indo[(int)$date->format('n')] . ' ' . $date->format('Y');
+
         $vol_num         = (float) preg_replace('/[^\d.]/', '', (string) $doc->vol);
         $biaya_num       = (float) preg_replace('/[^\d.]/', '', (string) $doc->biaya);
         $total_biaya     = $vol_num * $biaya_num;
@@ -888,7 +906,7 @@ class Docxgenerator extends Authenticated_Controller {
             'nip_ppk'          => $ppk['nip'],
             'nama_kepala'      => $doc->kepala,
             'nip_kepala'       => $doc->nip_kepala,
-            'tanggal_buat'     => date('d F Y', strtotime($doc->created_at)),
+            'tanggal_buat'     => $tanggal_indo,
         ]);
     }
 

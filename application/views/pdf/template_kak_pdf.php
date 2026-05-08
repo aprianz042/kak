@@ -505,7 +505,7 @@ $logo_src = 'data:image/png;base64,' . $logo_base64;
         <div class="nip">NIP. <?= htmlspecialchars($nip_ppk) ?></div>
       </td>
       <td>
-        <div><?= htmlspecialchars($kota_kegiatan) ?>, <?= htmlspecialchars($tanggal_buat) ?></div>
+        <div>Pontianak, <?= htmlspecialchars($tanggal_buat) ?></div>
         <div class="jabatan">
           Kepala Bagian Umum<br>
           BPS Provinsi Kalimantan Barat

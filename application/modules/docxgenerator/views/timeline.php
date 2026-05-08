@@ -176,7 +176,18 @@
         $nip_ppk          = $doc->nip_ppk ?? '-';
         $nama_kepala      = isset($kepala) ? $kepala->nama : '-';
         $nip_kepala       = isset($kepala) ? $kepala->nip : '-';
-        $tanggal_buat     = date('d F Y');
+
+        // Cara 1: Array bulan manual (paling reliable)
+        $bulan_indo = [
+            1 => 'Januari', 2 => 'Februari', 3 => 'Maret', 4 => 'April',
+            5 => 'Mei', 6 => 'Juni', 7 => 'Juli', 8 => 'Agustus',
+            9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
+        ];
+
+        $date = new DateTime($doc->created_at);
+        $tanggal_indo = $date->format('d') . ' ' . $bulan_indo[(int)$date->format('n')] . ' ' . $date->format('Y');
+        
+        $tanggal_buat     = $tanggal_indo;
 
         // Dasar hukum, maksud tujuan, keluaran → array
         $dashum           = array_filter(array_map('trim', explode("\n", $doc->dasar_hukum ?? '')));
@@ -415,7 +426,7 @@
                                     <div style="font-size:10.5pt;">NIP. <?= htmlspecialchars($nip_ppk) ?></div>
                                 </td>
                                 <td style="width:50%; text-align:center; vertical-align:top; font-size:11pt; padding:0 10px;">
-                                    <div><?= htmlspecialchars($kota_kegiatan) ?>, <?= htmlspecialchars($tanggal_buat) ?></div>
+                                    <div>Pontianak, <?= htmlspecialchars($tanggal_buat) ?></div>
                                     <div style="margin-bottom:50px;">
                                         Kepala Bagian Umum<br>
                                         BPS Provinsi Kalimantan Barat
