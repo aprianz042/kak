@@ -1,11 +1,11 @@
 <?php 
-    $active = $this->router->fetch_class();
-    $role = $this->session->userdata('role'); 
+$active = $this->router->fetch_class();
+$role = $this->session->userdata('role'); 
 ?>
 
 <aside class="d-flex flex-column flex-shrink-0 bg-light border-end h-100">
- <!-- LOGO + TITLE -->
- <div class="p-3 border-bottom">
+   <!-- LOGO + TITLE -->
+   <div class="p-3 border-bottom">
     <div class="d-flex align-items-center gap-2">
         <img src="<?= base_url('assets/images/pavicon.png') ?>" alt="Logo" style="width: 36px; height: 36px;" class="rounded">
         <div>
@@ -20,37 +20,43 @@
 
     <!-- Dashboard (semua role) -->
     <a href="<?= base_url('home') ?>"
-       class="nav-link d-flex align-items-center <?= $active == 'home' ? 'active' : 'link-dark' ?>">
-       <span class="me-2">🏠</span>
-       <span>Dashboard</span>
-    </a>
+     class="nav-link d-flex align-items-center <?= $active == 'home' ? 'active' : 'link-dark' ?>">
+     <span class="me-2">🏠</span>
+     <span>Dashboard</span>
+ </a>
 
-    <!-- DOCX Generator (operator & ppk) -->
-    <?php if ($role == 'operator' || $role == 'ppk'): ?>
-        <a href="<?= base_url('docxgenerator') ?>"
-           class="nav-link d-flex align-items-center <?= $active == 'docxgenerator' ? 'active' : 'link-dark' ?>">
-           <span class="me-2">📄</span>
-           <span>DOCX Generator</span>
-        </a>
-    <?php endif; ?>
+ <!-- DOCX Generator (operator & ppk) -->
+ <?php if ($role == 'operator' || $role == 'ppk'): ?>
+    <a href="<?= base_url('docxgenerator') ?>"
+     class="nav-link d-flex align-items-center <?= $active == 'docxgenerator' ? 'active' : 'link-dark' ?>">
+     <span class="me-2">📄</span>
+     <span>DOCX Generator</span>
+ </a>
+<?php endif; ?>
 
-    <!-- Pegawai (admin saja) -->
-    <?php if ($role == 'admin'): ?>
-        <a href="<?= base_url('pegawai') ?>"
-           class="nav-link d-flex align-items-center <?= $active == 'pegawai' ? 'active' : 'link-dark' ?>">
-           <span class="me-2">👥</span>
-           <span>Pegawai</span>
-        </a>
-    <?php endif; ?>
+<!-- Pegawai (admin saja) -->
+<?php if ($role == 'admin'): ?>
+    <a href="<?= base_url('pegawai') ?>"
+     class="nav-link d-flex align-items-center <?= $active == 'pegawai' ? 'active' : 'link-dark' ?>">
+     <span class="me-2">👥</span>
+     <span>Pegawai</span>
+ </a>
+<?php endif; ?>
 
-    <!-- Anggaran (admin & ppk) -->
-    <?php if ($role == 'admin' || $role == 'ppk'): ?>
-        <a href="<?= base_url('anggaran') ?>"
-           class="nav-link d-flex align-items-center <?= $active == 'anggaran' ? 'active' : 'link-dark' ?>">
-           <span class="me-2">💰</span>
-           <span>Anggaran</span>
-        </a>
-    <?php endif; ?>
+<!-- Anggaran (admin & ppk) -->
+<?php if ($role == 'admin' || $role == 'ppk'): ?>
+    <a href="<?= base_url('anggaran') ?>"
+     class="nav-link d-flex align-items-center <?= $active == 'anggaran' ? 'active' : 'link-dark' ?>">
+     <span class="me-2">💰</span>
+     <span>Anggaran</span>
+ </a>
+<?php endif; ?>
+
+<a href="<?= base_url('profil') ?>"
+ class="nav-link d-flex align-items-center <?= $active == 'profil' ? 'active' : 'link-dark' ?>">
+ <span class="me-2">⚙️</span>
+ <span>Profil</span>
+</a>
 
 </nav>
 
@@ -72,8 +78,8 @@
 
 <!-- LOGOUT -->
 <a href="<?= base_url('auth/logout') ?>"
-   class="btn btn-outline-danger btn-sm w-100">
-   Logout
+ class="btn btn-outline-danger btn-sm w-100">
+ Logout
 </a>
 
 </div>
