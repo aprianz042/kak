@@ -47,7 +47,7 @@
                     <?php if ($d->status === 'draft'): ?>
                         <a class="btn btn-sm btn-primary" href="<?= base_url('docxgenerator/pengajuan/'.$d->id) ?>">Ajukan Draft</a>
                     <?php elseif ($d->status === 'disetujui'): ?>
-                        <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_file/'.$d->file_doc) ?>">Download Dokumen</a>
+                        <a class="btn btn-sm btn-success" href="<?= base_url('docxgenerator/download_pdf/'.$d->file_doc) ?>">Download Dokumen</a>
                     <?php else: ?>
                         <span><?= htmlspecialchars($d->status) ?></span>
                     <?php endif; ?>

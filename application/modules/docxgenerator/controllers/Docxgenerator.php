@@ -634,14 +634,14 @@ class Docxgenerator extends Authenticated_Controller {
     public function download($file)
     {
         $this->cek_role(['operator', 'ppk', 'kepala']);
-        $path = FCPATH . 'storage/docx/' . $file;
+        $path = FCPATH . 'storage/docx/' . $file.'.docx';
 
         if (!file_exists($path)) {
             show_404();
         }
 
         header('Content-Type: application/vnd.openxmlformats-officedocument.wordprocessingml.document');
-        header('Content-Disposition: attachment; filename="' . $file . '"');
+        header('Content-Disposition: attachment; filename="' . $file . '.docx"');
         header('Content-Length: ' . filesize($path));
         readfile($path);
         exit;
@@ -650,14 +650,14 @@ class Docxgenerator extends Authenticated_Controller {
     public function download_pdf($file)
     {
         $this->cek_role(['operator', 'ppk', 'kepala']);
-        $path = FCPATH . 'storage/pdf/' . $file;
+        $path = FCPATH . 'storage/pdf/' . $file.'.pdf';
 
         if (!file_exists($path)) {
             show_404();
         }
 
         header('Content-Type: application/pdf');
-        header('Content-Disposition: attachment; filename="' . $file . '"');
+        header('Content-Disposition: attachment; filename="' . $file . '.pdf"');
         header('Content-Length: ' . filesize($path));
         readfile($path);
         exit;
