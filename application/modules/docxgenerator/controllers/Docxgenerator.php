@@ -589,6 +589,8 @@ class Docxgenerator extends Authenticated_Controller {
             'nama_kepala'      => $data['kepala'],
             'nip_kepala'       => $data['nip_kepala'],
             'tanggal_buat'     => $data['tanggal_buat'],
+            'ttd_ppk'          => $data['ttd_ppk'],
+            'ttd_kepala'       => $data['ttd_kepala'],
         ], $pdfPath);
 
         return [
