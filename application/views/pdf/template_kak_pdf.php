@@ -1,108 +1,108 @@
 <!DOCTYPE html>
 <html>
 <head>
-<meta charset="UTF-8">
-<style>
-  /* ===== UKURAN KERTAS A4 ===== */
-  @page {
-    size: A4 portrait;
-    margin: 3cm 2cm 2.5cm 3cm; /* atas kanan bawah kiri */
-  }
+  <meta charset="UTF-8">
+  <style>
+    /* ===== UKURAN KERTAS A4 ===== */
+    @page {
+      size: A4 portrait;
+      margin: 3cm 2cm 2.5cm 3cm; /* atas kanan bawah kiri */
+    }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
 
-  body {
-    font-family: Arial, sans-serif;
-    font-size: 11pt;
-    color: #000;
-    line-height: 1.4;
-    width: 17cm;         /* A4: 21cm - 2cm (kanan) - 3cm (kiri) */
-    margin: 0 auto;
-    padding: 80px 40px 50px 40px;
-  }
+    body {
+      font-family: Arial, sans-serif;
+      font-size: 11pt;
+      color: #000;
+      line-height: 1.4;
+      width: 17cm;         /* A4: 21cm - 2cm (kanan) - 3cm (kiri) */
+      margin: 0 auto;
+      padding: 80px 40px 50px 40px;
+    }
 
-  /* ===== COVER PAGE ===== */
-  /* Tinggi konten A4 = 29.7cm - 3cm (atas) - 2.5cm (bawah) = 24.2cm */
-  .cover-page {
-    height: 24.2cm;
-    display: flex;
-    flex-direction: column;
-  }
-  .cover-page .judul-wrapper {
-    flex: 1;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    text-align: center;
-    margin-top: 300px;
-  }
+    /* ===== COVER PAGE ===== */
+    /* Tinggi konten A4 = 29.7cm - 3cm (atas) - 2.5cm (bawah) = 24.2cm */
+    .cover-page {
+      height: 24.2cm;
+      display: flex;
+      flex-direction: column;
+    }
+    .cover-page .judul-wrapper {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      margin-top: 300px;
+    }
 
-  /* ===== PAGE BREAK ===== */
-  .page-break {
-    page-break-after: always;
-    break-after: page;
-  }
+    /* ===== PAGE BREAK ===== */
+    .page-break {
+      page-break-after: always;
+      break-after: page;
+    }
 
-  /* ===== HEADER SURAT ===== */
-  .header-box {
-    /*border: 2px solid #000;*/
-    padding: 10px 54px;
-    margin-bottom: 16px;
-    font-weight: bold;
-  }
-  .header-box .to-label {
-    font-size: 10pt;
-    margin-bottom: 4px;
-  }
-  .header-box .to-value {
-    font-size: 10pt;
-    font-weight: bold;
-    margin-top: 20px;
-    margin-bottom: 8px;
-  }
-  .header-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10.5pt;
-    margin-top: 55px;
-  }
-  .header-table td {
-    padding: 1px 4px;
-    vertical-align: top;
-  }
-  .header-table td:first-child {
-    width: 38%;
-    white-space: nowrap;
-  }
-  .header-table td.sep {
-    width: 2%;
-  }
+    /* ===== HEADER SURAT ===== */
+    .header-box {
+      /*border: 2px solid #000;*/
+      padding: 10px 54px;
+      margin-bottom: 16px;
+      font-weight: bold;
+    }
+    .header-box .to-label {
+      font-size: 10pt;
+      margin-bottom: 4px;
+    }
+    .header-box .to-value {
+      font-size: 10pt;
+      font-weight: bold;
+      margin-top: 20px;
+      margin-bottom: 8px;
+    }
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5pt;
+      margin-top: 55px;
+    }
+    .header-table td {
+      padding: 1px 4px;
+      vertical-align: top;
+    }
+    .header-table td:first-child {
+      width: 38%;
+      white-space: nowrap;
+    }
+    .header-table td.sep {
+      width: 2%;
+    }
 
-  /* ===== JUDUL ===== */
-  .judul-wrapper {
-    text-align: center;
-    margin: 16px 0 12px 0;
-  }
-  .judul-wrapper h1 {
-    font-size: 13pt;
-    font-weight: bold;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
-  .judul-wrapper p {
-    font-size: 11pt;
-    font-weight: bold;
-  }
-  .divider {
-    border-top: 2px solid #000;
-    margin: 8px 0;
-  }
+    /* ===== JUDUL ===== */
+    .judul-wrapper {
+      text-align: center;
+      margin: 16px 0 12px 0;
+    }
+    .judul-wrapper h1 {
+      font-size: 13pt;
+      font-weight: bold;
+      text-transform: uppercase;
+      margin-bottom: 2px;
+    }
+    .judul-wrapper p {
+      font-size: 11pt;
+      font-weight: bold;
+    }
+    .divider {
+      border-top: 2px solid #000;
+      margin: 8px 0;
+    }
 
-  /* ===== SECTION ===== */
-  .section {
-    margin-bottom: 12px;
-  }
+    /* ===== SECTION ===== */
+    .section {
+      margin-bottom: 12px;
+    }
 
   /*
    * Tabel pembungkus seluruh section (huruf + konten).
@@ -111,61 +111,61 @@
    * Gunakan selector > tbody > tr > td atau > tr > td agar tidak
    * merembes ke tabel bersarang.
    */
-  .section-table {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 11pt;
-  }
-  /* Hanya td langsung milik section-table yang padding-nya di-reset */
-  .section-table > tbody > tr > td,
-  .section-table > tr > td {
-    border: none;
-    padding: 0;
-    vertical-align: top;
-  }
+    .section-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 11pt;
+    }
+    /* Hanya td langsung milik section-table yang padding-nya di-reset */
+    .section-table > tbody > tr > td,
+    .section-table > tr > td {
+      border: none;
+      padding: 0;
+      vertical-align: top;
+    }
 
-  /* Kolom kiri: huruf sub-bab */
-  .sec-label {
-    width: 1.6em;
-    white-space: nowrap;
-    font-weight: bold;
-    padding-top: 0 !important;
-    padding-right: 4px !important;
-  }
+    /* Kolom kiri: huruf sub-bab */
+    .sec-label {
+      width: 1.6em;
+      white-space: nowrap;
+      font-weight: bold;
+      padding-top: 0 !important;
+      padding-right: 4px !important;
+    }
 
-  /* Kolom kanan: judul + isi */
-  .sec-title {
-    font-weight: bold;
-    font-size: 11pt;
-    margin-bottom: 4px;
-  }
-  .sec-content {
-    font-size: 11pt;
-    text-align: justify;
-    margin-bottom: 4px;
-  }
+    /* Kolom kanan: judul + isi */
+    .sec-title {
+      font-weight: bold;
+      font-size: 11pt;
+      margin-bottom: 4px;
+    }
+    .sec-content {
+      font-size: 11pt;
+      text-align: justify;
+      margin-bottom: 4px;
+    }
 
-  /* ===== LIST di dalam section ===== */
-  .list-table {
-    width: 100%;
-    border-collapse: collapse;
-    margin-top: 2px;
-    font-size: 11pt;
-  }
-  .list-table td {
-    border: none;
-    padding: 1px 0;
-    vertical-align: top;
-  }
-  .list-table .list-no {
-    width: 2em;
-    white-space: nowrap;
-  }
-  .list-table .list-text {
-    text-align: justify;
-  }
+    /* ===== LIST di dalam section ===== */
+    .list-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 2px;
+      font-size: 11pt;
+    }
+    .list-table td {
+      border: none;
+      padding: 1px 0;
+      vertical-align: top;
+    }
+    .list-table .list-no {
+      width: 2em;
+      white-space: nowrap;
+    }
+    .list-table .list-text {
+      text-align: justify;
+    }
 
-  /* ===== TABEL ANGGARAN ===== */
+    /* ===== TABEL ANGGARAN ===== */
   /*
    * Karena .tabel-anggaran bersarang di dalam .section-table,
    * selector dengan spesifisitas lebih tinggi diperlukan agar
@@ -173,72 +173,96 @@
    * Menggunakan .tabel-anggaran th dan .tabel-anggaran td sudah cukup
    * karena keduanya lebih spesifik dari selector > tr > td di atas.
    */
-  .tabel-anggaran {
-    width: 100%;
-    border-collapse: collapse;
-    font-size: 10.5pt;
-    margin-top: 6px;
-  }
-  .tabel-anggaran th {
-    background-color: #d9d9d9;
-    border: 1px solid #000;
-    padding: 6px 8px;
-    text-align: center;
-    font-weight: bold;
-    vertical-align: middle;
-  }
-  .tabel-anggaran td {
-    border: 1px solid #000;
-    padding: 6px 8px;        /* padding kiri-kanan 8px agar tidak nempel tepi */
-    vertical-align: top;
-  }
-  .tabel-anggaran td.text-center {
-    text-align: center;
-  }
-  .tabel-anggaran td.text-right {
-    text-align: right;
-  }
-  .tabel-anggaran tr.total-row td {
-    font-weight: bold;
-  }
+    .tabel-anggaran {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 10.5pt;
+      margin-top: 6px;
+    }
+    .tabel-anggaran th {
+      background-color: #d9d9d9;
+      border: 1px solid #000;
+      padding: 6px 8px;
+      text-align: center;
+      font-weight: bold;
+      vertical-align: middle;
+    }
+    .tabel-anggaran td {
+      border: 1px solid #000;
+      padding: 6px 8px;        /* padding kiri-kanan 8px agar tidak nempel tepi */
+      vertical-align: top;
+    }
+    .tabel-anggaran td.text-center {
+      text-align: center;
+    }
+    .tabel-anggaran td.text-right {
+      text-align: right;
+    }
+    .tabel-anggaran tr.total-row td {
+      font-weight: bold;
+    }
 
-  /* ===== TANDA TANGAN ===== */
-  .ttd-wrapper {
-    width: 100%;
-    margin-top: 20px;
-  }
-  .ttd-table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  .ttd-table td {
-    width: 50%;
-    text-align: center;
-    vertical-align: top;
-    font-size: 11pt;
-    padding: 0 10px;
-  }
-  .ttd-table .jabatan {
-    font-size: 10.5pt;
-    margin-bottom: 50px; /* ruang tanda tangan */
-  }
-  .ttd-table .nama {
-    font-weight: bold;
-    text-decoration: underline;
-  }
-  .ttd-table .nip {
-    font-size: 10.5pt;
-  }
-</style>
+    /* ===== TANDA TANGAN ===== */
+    .ttd-wrapper {
+      width: 100%;
+      margin-top: 20px;
+    }
+    .ttd-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .ttd-table td {
+      width: 50%;
+      text-align: center;
+      vertical-align: top;
+      font-size: 11pt;
+      padding: 0 10px;
+    }
+    .ttd-table .jabatan {
+      font-size: 10.5pt;
+      /*margin-bottom: 50px;*/
+    }
+    .ttd-table .nama {
+      font-weight: bold;
+      text-decoration: underline;
+    }
+    .ttd-table .nip {
+      font-size: 10.5pt;
+    }
+    .ttd-box {
+      height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center; /* tambahan */
+    }
+
+    .ttd-box img {
+      display: block;        /* penting */
+      margin: auto;          /* fallback center */
+      max-height: 90px;      /* jangan full biar ada ruang */
+      max-width: 100%;
+      object-fit: contain;
+    }
+  </style>
 </head>
 <body>
 
-<?php
+  <?php
 // CodeIgniter
-$logo_path = FCPATH . 'assets/images/logo_bps.png';
-$logo_base64 = base64_encode(file_get_contents($logo_path));
-$logo_src = 'data:image/png;base64,' . $logo_base64;
-?>
+  $logo_path = FCPATH . 'assets/images/logo_bps.png';
+  $logo_base64 = base64_encode(file_get_contents($logo_path));
+  $logo_src = 'data:image/png;base64,' . $logo_base64;
+
+  $ttd_ppk_path = FCPATH . 'storage/ttd/'.$ttd_ppk;
+  $ttd_ppk_base64 = base64_encode(file_get_contents($ttd_ppk_path));
+  $ttd_ppk = 'data:image/png;base64,' . $ttd_ppk_base64;
+
+  $ttd_kepala_path = FCPATH . 'storage/ttd/'.$ttd_kepala;
+  $ttd_kepala_base64 = base64_encode(file_get_contents($ttd_kepala_path));
+  $ttd_kepala = 'data:image/png;base64,' . $ttd_kepala_base64;
+
+  ?>
 
 <!-- ===== HALAMAN 1: COVER ===== -->
 <div class="cover-page">
@@ -246,8 +270,8 @@ $logo_src = 'data:image/png;base64,' . $logo_base64;
   <!-- HEADER SURAT -->
   <div class="header-box">
     <center>
-        <img src="<?= $logo_src ?>">
-        <div class="to-value">Ditujukan Kepada KPA: BPS Provinsi Kalimantan Barat<br>Di Badan Pusat Statistik Provinsi Kalimantan Barat</div>
+      <img src="<?= $logo_src ?>">
+      <div class="to-value">Ditujukan Kepada KPA: BPS Provinsi Kalimantan Barat<br>Di Badan Pusat Statistik Provinsi Kalimantan Barat</div>
     </center>
 
     <table class="header-table">
@@ -501,6 +525,9 @@ $logo_src = 'data:image/png;base64,' . $logo_base64;
           Pejabat Pembuat Komitmen<br>
           BPS Provinsi Kalimantan Barat
         </div>
+        <div class="ttd-box">
+          <img src="<?= $ttd_ppk ?>">
+        </div>
         <div class="nama"><?= htmlspecialchars($nama_ppk) ?></div>
         <div class="nip">NIP. <?= htmlspecialchars($nip_ppk) ?></div>
       </td>
@@ -509,6 +536,9 @@ $logo_src = 'data:image/png;base64,' . $logo_base64;
         <div class="jabatan">
           Kepala Bagian Umum<br>
           BPS Provinsi Kalimantan Barat
+        </div>
+        <div class="ttd-box">
+          <img src="<?= $ttd_kepala ?>">
         </div>
         <div class="nama"><?= htmlspecialchars($nama_kepala) ?></div>
         <div class="nip">NIP. <?= htmlspecialchars($nip_kepala) ?></div>

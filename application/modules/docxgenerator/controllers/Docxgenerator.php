@@ -345,6 +345,9 @@ class Docxgenerator extends Authenticated_Controller {
             
             $tanggal_buat     = $tanggal_indo;
 
+            $ttd_ppk = $this->Docxgenerator_model->get_ttd_user($ppk['nip']);
+            $ttd_kepala = $this->Docxgenerator_model->get_ttd_user($dokumen->nip_kepala);
+
             $fileNames = $this->_generate_files([
                 'baseName'        => $dokumen->file_doc,
                 'unit_organisasi' => $dokumen->unit_organisasi,
@@ -378,6 +381,8 @@ class Docxgenerator extends Authenticated_Controller {
                 'kepala'          => $dokumen->kepala,
                 'nip_kepala'      => $dokumen->nip_kepala,
                 'tanggal_buat'    => $tanggal_buat,
+                'ttd_ppk'         => $ttd_ppk,
+                'ttd_kepala'      => $ttd_kepala,
             ]);
 
             echo json_encode([
@@ -869,13 +874,16 @@ class Docxgenerator extends Authenticated_Controller {
             9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
         ];
 
-        $date = new DateTime('d F Y', strtotime($doc->created_at));
+        $date = new DateTime($doc->created_at);
         $tanggal_indo = $date->format('d') . ' ' . $bulan_indo[(int)$date->format('n')] . ' ' . $date->format('Y');
 
         $vol_num         = (float) preg_replace('/[^\d.]/', '', (string) $doc->vol);
         $biaya_num       = (float) preg_replace('/[^\d.]/', '', (string) $doc->biaya);
         $total_biaya     = $vol_num * $biaya_num;
         $terbilang_total = $this->terbilang_rupiah($total_biaya);
+
+        $ttd_ppk = $this->Docxgenerator_model->get_ttd_user($ppk['nip']);
+        $ttd_kepala = $this->Docxgenerator_model->get_ttd_user($doc->nip_kepala);
 
         $this->load->view('pdf/template_kak_pdf', [
             'unit_organisasi'  => $doc->unit_organisasi,
@@ -907,6 +915,8 @@ class Docxgenerator extends Authenticated_Controller {
             'nama_kepala'      => $doc->kepala,
             'nip_kepala'       => $doc->nip_kepala,
             'tanggal_buat'     => $tanggal_indo,
+            'ttd_ppk'          => $ttd_ppk,
+            'ttd_kepala'       => $ttd_kepala,
         ]);
     }
 
@@ -944,4 +954,5 @@ class Docxgenerator extends Authenticated_Controller {
         $angka = preg_replace('/[^\d]/', '', (string) $angka);
         return number_format((float) $angka, 0, ',', '.');
     }
+
 }

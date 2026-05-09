@@ -79,7 +79,7 @@ class Profil extends Authenticated_Controller {
     }
 
 
-    public function upload_ttd()
+    /*public function upload_ttd()
     {
         $id = $this->session->userdata('user_id');
 
@@ -108,6 +108,41 @@ class Profil extends Authenticated_Controller {
             } else {
                 $this->session->set_flashdata('error', $this->upload->display_errors());
             }
+        }
+
+        redirect('profil#tanda-tangan');
+    }*/
+
+    public function upload_ttd()
+    {
+        $id = $this->session->userdata('user_id');
+
+        $base64 = $this->input->post('ttd_base64');
+
+        if (!empty($base64)) {
+
+        // decode base64
+            $image = str_replace('data:image/png;base64,', '', $base64);
+            $image = str_replace(' ', '+', $image);
+            $image = base64_decode($image);
+
+        // nama file
+            $file = uniqid() . '.png';
+            $path = './storage/ttd/' . $file;
+
+            file_put_contents($path, $image);
+
+        // hapus lama
+            $old = $this->Profil_model->get_by_id($id);
+            if (!empty($old->ttd) && file_exists('./storage/ttd/'.$old->ttd)) {
+                unlink('./storage/ttd/'.$old->ttd);
+            }
+
+            $this->Profil_model->update($id, ['ttd' => $file]);
+
+            $this->session->set_flashdata('success', 'TTD berhasil diupload (cropped)');
+        } else {
+            $this->session->set_flashdata('error', 'Gagal crop tanda tangan');
         }
 
         redirect('profil#tanda-tangan');

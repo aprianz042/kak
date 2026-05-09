@@ -21,7 +21,22 @@
             max-height: 90vh;   /* tinggi maksimal (viewport) */
             overflow-y: auto;   /* aktifkan scroll vertikal */
         }
-    </style>
+        
+        #cropModal .modal-body {
+          height: calc(95vh - 120px);
+          display: flex;
+          justify-content: center;
+          align-items: center;
+          overflow: hidden;
+      }
+      #cropImage {
+        max-width: 300px;
+        max-height: 100%;
+        height: auto;
+        display: block;
+    }
+
+</style>
 
 </head>
 <body>

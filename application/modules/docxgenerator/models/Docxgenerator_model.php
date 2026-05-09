@@ -58,34 +58,34 @@ class Docxgenerator_model extends CI_Model {
     public function get_doc_user($id)
     {
         return $this->db
-            ->select('
-                        generated_documents.*,
-                        pegawai.nama as nama_ppk,
-                        pegawai.nip as nip_ppk
-                    ')            
-            ->from('generated_documents')
-            ->join('pegawai', 'generated_documents.ppk_id = pegawai.id', 'left')
-            ->where('generated_documents.id_creator', $id)
-            ->order_by('generated_documents.created_at', 'DESC')
-            ->get()
-            ->result();
+        ->select('
+            generated_documents.*,
+            pegawai.nama as nama_ppk,
+            pegawai.nip as nip_ppk
+            ')            
+        ->from('generated_documents')
+        ->join('pegawai', 'generated_documents.ppk_id = pegawai.id', 'left')
+        ->where('generated_documents.id_creator', $id)
+        ->order_by('generated_documents.created_at', 'DESC')
+        ->get()
+        ->result();
     }
 
     public function get_doc_ppk($id)
     {
         return $this->db
-            ->select('
-                generated_documents.*,
-                creator.nama as nama_creator
+        ->select('
+            generated_documents.*,
+            creator.nama as nama_creator
             ')
-            ->from('generated_documents')
+        ->from('generated_documents')
             ->join('pegawai creator', 'creator.id = generated_documents.id_creator', 'left') // sesuaikan ID / NIP
             ->where('generated_documents.ppk_id', $id)
             ->where('generated_documents.status !=', 'draft')
             ->order_by('generated_documents.created_at', 'DESC')
             ->get()
             ->result();
-    }
+        }
 
 
     /* =========================
@@ -286,13 +286,13 @@ class Docxgenerator_model extends CI_Model {
     public function get_logs_dokumen($id)
     {
         return $this->db
-            ->select('log_dokumen.*, generated_documents.file_doc')
-            ->from('log_dokumen')
-            ->join('generated_documents', 'generated_documents.id = log_dokumen.id_dokumen', 'left')
-            ->where('log_dokumen.id_dokumen', $id)
-            ->order_by('log_dokumen.created_at', 'ASC')
-            ->get()
-            ->result();
+        ->select('log_dokumen.*, generated_documents.file_doc')
+        ->from('log_dokumen')
+        ->join('generated_documents', 'generated_documents.id = log_dokumen.id_dokumen', 'left')
+        ->where('log_dokumen.id_dokumen', $id)
+        ->order_by('log_dokumen.created_at', 'ASC')
+        ->get()
+        ->result();
     }
 
     public function getPengirimTerakhir($id_dokumen)
@@ -316,7 +316,17 @@ class Docxgenerator_model extends CI_Model {
         return $this->db->get_where('generated_documents', ['id' => $id])->row();
     }
 
+    public function get_ttd_user($nip)
+    {
+        $query = $this->db
+        ->select('ttd')
+        ->where('nip', $nip)
+        ->limit(1)
+        ->get('pegawai')
+        ->row();
 
+        return $query ? $query->ttd : null;
+    }
 }
 
 

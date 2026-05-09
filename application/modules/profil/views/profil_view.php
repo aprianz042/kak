@@ -124,27 +124,183 @@
 
                             <?php if (!empty($profil->ttd)): ?>
                                 <a href="<?= base_url('profil/hapus_ttd') ?>"
-                                   class="btn btn-danger btn-sm"
-                                   onclick="return confirm('Hapus TTD?')">
-                                   Hapus
-                               </a>
-                           <?php endif; ?>
+                                 class="btn btn-danger btn-sm"
+                                 onclick="return confirm('Hapus TTD?')">
+                                 Hapus
+                             </a>
+                         <?php endif; ?>
 
-                       </div>
+                     </div>
 
-                       <input type="file" name="ttd" class="form-control mb-2">
+                     <input type="file" name="ttd" id="ttdInput" class="form-control mb-2">
+                     <input type="hidden" name="ttd_base64" id="ttd_base64">
 
-                       <button class="btn btn-primary">Upload</button>
-                   </div>
-               </div>
-           </form>
+                     <button class="btn btn-primary">Upload</button>
+                 </div>
+             </div>
+         </form>
 
-       </div>
-   </div>
+     </div>
+ </div>
 </div>
 
+<div class="modal fade" id="cropModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+        <div class="modal-content">
+
+          <div class="modal-header">
+            <h5 class="modal-title">Crop Tanda Tangan</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body text-center">
+            <img id="cropImage" style="max-width:100%;">
+        </div>
+
+        <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+            <button type="button" class="btn btn-primary" id="cropBtn">Crop & Upload</button>
+        </div>
+
+    </div>
+</div>
+</div>
+
+<link href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css" rel="stylesheet"/>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    let cropper;
+    const input = document.getElementById('ttdInput');
+    const image = document.getElementById('cropImage');
+    const modalEl = document.getElementById('cropModal');
+    const modal = new bootstrap.Modal(modalEl);
+
+// ================= INIT FILE =================
+    input.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+        reader.onload = async function(e) {
+            const resized = await resizeImage(e.target.result);
+
+            image.src = resized;
+            modal.show();
+        };
+        reader.readAsDataURL(file);
+    });
+
+// ================= INIT CROPPER (SETELAH MODAL MUNCUL) =================
+    modalEl.addEventListener('shown.bs.modal', function () {
+
+        if (cropper) {
+            cropper.destroy();
+        }
+
+        cropper = new Cropper(image, {
+            viewMode: 1,
+            autoCropArea: 1,
+            responsive: true,
+
+            ready() {
+                const container = cropper.getContainerData();
+
+        // 🔥 paksa width max 80% dari modal
+                const maxWidth = document.querySelector('#cropModal .modal-body').clientWidth * 0.8;
+
+                let newWidth = container.width;
+                let newHeight = container.height;
+
+                if (newWidth > maxWidth) {
+                    const scale = maxWidth / newWidth;
+                    newWidth = maxWidth;
+                    newHeight = newHeight * scale;
+                }
+
+                cropper.setCanvasData({
+                    width: newWidth,
+                    height: newHeight
+                });
+            }
+        });
+
+    // paksa supaya langsung besar & center
+        setTimeout(() => {
+            cropper.resize();
+            /*cropper.zoomTo(1);*/
+            cropper.reset(); // lebih stabil daripada zoomTo
+        }, 100);
+    });
+
+
+
+// ================= CROP BUTTON =================
+    document.getElementById('cropBtn').addEventListener('click', function() {
+
+        let canvas = cropper.getCroppedCanvas({
+            height: 150
+        });
+
+    // remove background
+        canvas = removeWhiteBackground(canvas);
+
+        const base64 = canvas.toDataURL('image/png');
+
+        document.getElementById('ttd_base64').value = base64;
+
+        modal.hide();
+
+        input.closest('form').submit();
+    });
+
+
+    function resizeImage(base64, maxWidth = 800) {
+        return new Promise((resolve) => {
+            const img = new Image();
+            img.onload = function () {
+
+                let width = img.width;
+                let height = img.height;
+
+            // kalau terlalu lebar → scale down
+                if (width > maxWidth) {
+                    const scale = maxWidth / width;
+                    width = maxWidth;
+                    height = height * scale;
+                }
+
+                const canvas = document.createElement('canvas');
+                canvas.width = width;
+                canvas.height = height;
+
+                const ctx = canvas.getContext('2d');
+                ctx.drawImage(img, 0, 0, width, height);
+
+                resolve(canvas.toDataURL('image/png'));
+            };
+            img.src = base64;
+        });
+    }
+// ================= REMOVE BACKGROUND =================
+    function removeWhiteBackground(canvas) {
+        const ctx = canvas.getContext('2d');
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imgData.data;
+
+        for (let i = 0; i < data.length; i += 4) {
+            const r = data[i];
+            const g = data[i + 1];
+            const b = data[i + 2];
+
+            if (r > 240 && g > 240 && b > 240) {
+                data[i + 3] = 0;
+            }
+        }
+
+        ctx.putImageData(imgData, 0, 0);
+        return canvas;
+    }
 // Navigasi sidebar aktif
     function setActive(el) {
         document.querySelectorAll('.list-group-item').forEach(item => item.classList.remove('active'));
