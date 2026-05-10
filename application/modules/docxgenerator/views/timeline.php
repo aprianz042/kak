@@ -73,15 +73,11 @@
         <?php 
         $role = $this->session->userdata('role');
         $lastTimeline = $timeline[$lastIndex] ?? null;
-        $showFormTL = (
-            $role == 'ppk' && 
-            $lastTimeline && 
-            in_array($lastTimeline->status, ['ajuan_baru', 'ajuan_revisi'])
-        );
+        $showFormTL = ($role == 'ppk' && $lastTimeline && in_array($lastTimeline->status, ['ajuan_baru', 'ajuan_revisi']));
         ?>
 
         <?php if ($showFormTL): ?>
-            <form id="formTL">
+            <!-- <form id="formTL">
                 <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>" id="tl_id">
                 <div class="mb-3">
                     <label>Tindak Lanjut</label>
@@ -96,6 +92,26 @@
                     <textarea name="pesan" id="tl_pesan" class="form-control"></textarea>
                 </div>
                 <button class="btn btn-primary w-100">Kirim</button>
+            </form> -->
+
+            <form method="post" action="<?= base_url('docxgenerator/tindak_lanjut_ppk') ?>">
+                <input type="hidden" name="id_dokumen" value="<?= $id_dokumen ?>">
+
+                <div class="mb-3">
+                    <label>Tindak Lanjut</label>
+                    <select name="aksi" id="tl_status" class="form-control" required>
+                        <option value="">-- pilih --</option>
+                        <option value="revisi">Revisi</option>
+                        <option value="disetujui">ACC</option>
+                    </select>
+                </div>
+
+                <div class="mb-3 d-none" id="wrap_pesan">
+                    <label>Pesan Revisi</label>
+                    <textarea name="pesan" class="form-control"></textarea>
+                </div>
+
+                <button type="submit" class="btn btn-primary w-100">Kirim</button>
             </form>
         <?php endif; ?>
     </div>
@@ -458,159 +474,139 @@
                             <input type="text" name="program" class="form-control" value="<?= $doc->program ?? '' ?>" required>
                         </div>
 
-<!-- Kegiatan -->
-<div class="mb-3">
-    <label class="form-label">Kegiatan</label>
-    <input type="text" name="kegiatan" class="form-control" value="<?= $doc->kegiatan ?? '' ?>" required>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Kegiatan</label>
+                            <input type="text" name="kegiatan" class="form-control" value="<?= $doc->kegiatan ?? '' ?>" required>
+                        </div>
 
-<!-- KRO -->
-<div class="mb-3">
-    <label class="form-label">KRO</label>
-    <input type="text" name="kro" class="form-control" value="<?= $doc->kro ?? '' ?>" required>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">KRO</label>
+                            <input type="text" name="kro" class="form-control" value="<?= $doc->kro ?? '' ?>" required>
+                        </div>
 
-<!-- RO -->
-<div class="mb-3">
-    <label class="form-label">RO</label>
-    <input type="text" name="ro" class="form-control" value="<?= $doc->ro ?? '' ?>" required>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">RO</label>
+                            <input type="text" name="ro" class="form-control" value="<?= $doc->ro ?? '' ?>" required>
+                        </div>
 
-<!-- Komponen -->
-<div class="mb-3">
-    <label class="form-label">Komponen</label>
-    <input type="text" name="komponen" class="form-control" value="<?= $doc->komponen ?? '' ?>" required>
-</div>
-<div class="mb-3">
-    <label class="form-label">Anggaran</label>
-    <select name="kode_anggaran" class="form-control" required>
-        <option value="">-- Pilih Anggaran --</option>
-        <?php foreach ($anggaran as $row): ?>
-            <option value="<?= $row->kode_akun ?>" 
-                <?= ($doc->kode_anggaran ?? '') == $row->kode_akun ? 'selected' : '' ?>>
-                <?= $row->kode_akun ?> - <?= $row->nama_kegiatan ?>
-            </option>
-        <?php endforeach; ?>
-    </select>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Komponen</label>
+                            <input type="text" name="komponen" class="form-control" value="<?= $doc->komponen ?? '' ?>" required>
+                        </div>
 
-<input type="hidden" name="akun_anggaran" id="akun_anggaran_<?= $doc->id ?>" value="<?= $doc->akun_anggaran ?>">
+                        <div class="mb-3">
+                            <label class="form-label">Anggaran</label>
+                            <select name="kode_anggaran" class="form-control" required>
+                                <option value="">-- Pilih Anggaran --</option>
+                                <?php foreach ($anggaran as $row): ?>
+                                    <option value="<?= $row->kode_akun ?>" 
+                                        <?= ($doc->kode_anggaran ?? '') == $row->kode_akun ? 'selected' : '' ?>>
+                                        <?= $row->kode_akun ?> - <?= $row->nama_kegiatan ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
+                        </div>
 
-<div class="mb-3">
-    <label class="form-label">Kab/Kota</label>
-    <select id="regency_id_<?= $doc->id ?>" name="regency_id" class="form-control" required></select>
-</div>
+                        <input type="hidden" name="akun_anggaran" id="akun_anggaran_<?= $doc->id ?>" value="<?= $doc->akun_anggaran ?>">
 
-<div class="mb-3">
-    <label class="form-label">Provinsi</label>
-    <input type="text" id="provinsi_<?= $doc->id ?>" name="provinsi" class="form-control" value="<?= $doc->provinsi ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Kab/Kota</label>
+                            <select id="regency_id_<?= $doc->id ?>" name="regency_id" class="form-control" required></select>
+                        </div>
 
+                        <div class="mb-3">
+                            <label class="form-label">Provinsi</label>
+                            <input type="text" id="provinsi_<?= $doc->id ?>" name="provinsi" class="form-control" value="<?= $doc->provinsi ?? '' ?>">
+                        </div>
 
-<!-- Tahun -->
-<div class="mb-3">
-    <label class="form-label">Tahun Anggaran</label>
-    <input type="text" name="tahun_anggaran" class="form-control" value="<?= $doc->tahun_anggaran ?? '' ?>" required>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Tahun Anggaran</label>
+                            <input type="text" name="tahun_anggaran" class="form-control" value="<?= $doc->tahun_anggaran ?? '' ?>" required>
+                        </div>
 
-<!-- Dasar Hukum -->
-<div class="mb-3">
-    <label class="form-label">Dasar Hukum</label>
-    <textarea name="dasar_hukum" class="form-control"><?= $doc->dasar_hukum ?? '' ?></textarea>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Dasar Hukum</label>
+                            <textarea name="dasar_hukum" class="form-control"><?= $doc->dasar_hukum ?? '' ?></textarea>
+                        </div>
 
-<!-- Gambaran Umum -->
-<div class="mb-3">
-    <label class="form-label">Gambaran Umum</label>
-    <textarea name="gambaran_umum" class="form-control"><?= $doc->gambaran_umum ?? '' ?></textarea>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Gambaran Umum</label>
+                            <textarea name="gambaran_umum" class="form-control"><?= $doc->gambaran_umum ?? '' ?></textarea>
+                        </div>
 
-<!-- Maksud -->
-<div class="mb-3">
-    <label class="form-label">Maksud dan Tujuan</label>
-    <textarea name="maksud_tujuan" class="form-control"><?= $doc->maksud_tujuan ?? '' ?></textarea>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Maksud dan Tujuan</label>
+                            <textarea name="maksud_tujuan" class="form-control"><?= $doc->maksud_tujuan ?? '' ?></textarea>
+                        </div>
 
-<!-- Output -->
-<div class="mb-3">
-    <label class="form-label">Keluaran</label>
-    <textarea name="keluaran" class="form-control"><?= $doc->keluaran ?? '' ?></textarea>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Keluaran</label>
+                            <textarea name="keluaran" class="form-control"><?= $doc->keluaran ?? '' ?></textarea>
+                        </div>
 
-<!-- Nama -->
-<div class="mb-3">
-    <label class="form-label">Nama Kegiatan</label>
-    <input type="text" name="nama_kegiatan" class="form-control" value="<?= $doc->nama_kegiatan ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Nama Kegiatan</label>
+                            <input type="text" name="nama_kegiatan" class="form-control" value="<?= $doc->nama_kegiatan ?? '' ?>">
+                        </div>
 
-<!-- Waktu -->
-<div class="mb-3">
-    <label class="form-label">Waktu</label>
-    <input type="text" name="waktu" class="form-control" value="<?= $doc->waktu ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Waktu</label>
+                            <input type="text" name="waktu" class="form-control" value="<?= $doc->waktu ?? '' ?>">
+                        </div>
 
-<!-- Tanggal Bayar -->
-<div class="mb-3">
-    <label class="form-label">Tanggal Bayar</label>
-    <input type="text" name="tanggal_bayar" class="form-control" value="<?= $doc->tanggal_bayar ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Tanggal Bayar</label>
+                            <input type="text" name="tanggal_bayar" class="form-control" value="<?= $doc->tanggal_bayar ?? '' ?>">
+                        </div>
 
-<!-- Lokasi -->
-<div class="mb-3">
-    <label class="form-label">Lokasi</label>
-    <input type="text" name="lokasi" class="form-control" value="<?= $doc->lokasi ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Lokasi</label>
+                            <input type="text" name="lokasi" class="form-control" value="<?= $doc->lokasi ?? '' ?>">
+                        </div>
 
-<!-- Volume -->
-<div class="mb-3">
-    <label class="form-label">Vol</label>
-    <input type="text" name="vol" class="form-control" value="<?= $doc->vol ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Vol</label>
+                            <input type="text" name="vol" class="form-control" value="<?= $doc->vol ?? '' ?>">
+                        </div>
 
-<!-- Satuan -->
-<div class="mb-3">
-    <label class="form-label">Satuan</label>
-    <input type="text" name="satuan" class="form-control" value="<?= $doc->satuan ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Satuan</label>
+                            <input type="text" name="satuan" class="form-control" value="<?= $doc->satuan ?? '' ?>">
+                        </div>
 
-<!-- Biaya -->
-<div class="mb-3">
-    <label class="form-label">Biaya</label>
-    <input type="text" name="biaya" class="form-control" value="<?= $doc->biaya ?? '' ?>">
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Biaya</label>
+                            <input type="text" name="biaya" class="form-control" value="<?= $doc->biaya ?? '' ?>">
+                        </div>
 
-<!-- PPK -->
-<div class="mb-3">
-    <label class="form-label">PPK</label>
-    <input type="text" name="nama_ppk" class="form-control" value="<?= $doc->nama_ppk ?? '' ?>" disabled>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">PPK</label>
+                            <input type="text" name="nama_ppk" class="form-control" value="<?= $doc->nama_ppk ?? '' ?>" disabled>
+                        </div>
 
-<!-- NIP PPK -->
-<div class="mb-3">
-    <label class="form-label">NIP PPK</label>
-    <input type="text" name="nip_ppk" class="form-control" value="<?= $doc->nip_ppk ?? '' ?>" disabled>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">NIP PPK</label>
+                            <input type="text" name="nip_ppk" class="form-control" value="<?= $doc->nip_ppk ?? '' ?>" disabled>
+                        </div>
 
-<!-- Kepala -->
-<div class="mb-3">
-    <label class="form-label">Kepala</label>
-    <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nama : '' ?>" disabled>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">Kepala</label>
+                            <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nama : '' ?>" disabled>
+                        </div>
 
-<!-- NIP Kepala -->
-<div class="mb-3">
-    <label class="form-label">NIP Kepala</label>
-    <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nip : '' ?>" disabled>
-</div>
+                        <div class="mb-3">
+                            <label class="form-label">NIP Kepala</label>
+                            <input type="text" class="form-control" value="<?= isset($kepala) ? $kepala->nip : '' ?>" disabled>
+                        </div>
 
-<button type="submit" class="btn btn-warning">Simpan Revisi</button>
+                        <button type="submit" class="btn btn-warning">Simpan Revisi</button>
 
-</form>
+                    </form>
 
-</div>
-</div>
-</div>
-</div>
+                </div>
+            </div>
+        </div>
+    </div>
 <?php endforeach; ?>
 
 
@@ -639,18 +635,18 @@
                         }[item.status] || 'dark';
 
                         html += `
-<div class="mb-3 p-3 border rounded bg-light">
-<div class="d-flex justify-content-between">
-<span class="badge bg-${badge}">${item.status}</span>
-<small>${item.created_at}</small>
-</div>
-<div class="mt-2">
-<strong>${item.pengirim}</strong> ➝ 
-<strong>${item.penerima || '-'}</strong>
-</div>
-<div class="mt-2 text-muted">
+                        <div class="mb-3 p-3 border rounded bg-light">
+                        <div class="d-flex justify-content-between">
+                        <span class="badge bg-${badge}">${item.status}</span>
+                        <small>${item.created_at}</small>
+                        </div>
+                        <div class="mt-2">
+                        <strong>${item.pengirim}</strong> ➝ 
+                        <strong>${item.penerima || '-'}</strong>
+                        </div>
+                        <div class="mt-2 text-muted">
                             ${item.pesan ? item.pesan : '-'}
-</div>
+                        </div>
                         </div>`;
                     });
                 }
@@ -768,24 +764,24 @@
                         select2Ready = true;
 
                         $regency.select2({
-dropdownParent: document.getElementById('revisiModal' + id), // ✅ pakai native element
-placeholder: 'Ketik nama Kab/Kota...',
-minimumInputLength: 2,
-width: '100%',
-allowClear: true,
-ajax: {
-    url: "<?= base_url('docxgenerator/search_regencies') ?>",
-    dataType: 'json',
-    delay: 250,
-    data: function (params) {
-        return { q: params.term };
-    },
-    processResults: function (data) {
-        return { results: data };
-    },
-    cache: true
-}
-});
+                            dropdownParent: document.getElementById('revisiModal' + id), 
+                            placeholder: 'Ketik nama Kab/Kota...',
+                            minimumInputLength: 2,
+                            width: '100%',
+                            allowClear: true,
+                            ajax: {
+                                url: "<?= base_url('docxgenerator/search_regencies') ?>",
+                                dataType: 'json',
+                                delay: 250,
+                                data: function (params) {
+                                    return { q: params.term };
+                                },
+                                processResults: function (data) {
+                                    return { results: data };
+                                },
+                                cache: true
+                            }
+                        });
 
                         $regency.on('select2:select', function (e) {
                             const d = e.params.data;
@@ -811,5 +807,5 @@ ajax: {
             })();
         <?php endforeach; ?>
 
-}); // ✅ tutup DOMContentLoaded
+    });
 </script>

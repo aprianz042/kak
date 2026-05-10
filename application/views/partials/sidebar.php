@@ -34,6 +34,14 @@ $role = $this->session->userdata('role');
  </a>
 <?php endif; ?>
 
+<?php if ($role == 'kepala'): ?>
+    <a href="<?= base_url('dokumen') ?>"
+     class="nav-link d-flex align-items-center <?= $active == 'dokumen' ? 'active' : 'link-dark' ?>">
+     <span class="me-2">📄</span>
+     <span>Dokumem KAK</span>
+ </a>
+<?php endif; ?>
+
 <!-- Pegawai (admin saja) -->
 <?php if ($role == 'admin'): ?>
     <a href="<?= base_url('pegawai') ?>"

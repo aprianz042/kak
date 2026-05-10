@@ -212,7 +212,6 @@ class Docxgenerator extends Authenticated_Controller {
             'satuan'          => $satuan,
             'biaya'           => $biaya,
             'updated_at'      => date('Y-m-d H:i:s'),
-            'status'          => 'ajuan_baru',
         ]);
 
         // Insert log
@@ -226,18 +225,68 @@ class Docxgenerator extends Authenticated_Controller {
             'pesan'      => 'Dokumen telah direvisi dan diajukan kembali'
         ]);
 
-        // Hitung biaya untuk generate file
-        $vol_num         = (float) preg_replace('/[^\d.]/', '', (string) $vol);
-        $biaya_num       = (float) preg_replace('/[^\d.]/', '', (string) $biaya);
-        $total_biaya     = $vol_num * $biaya_num;
-        $terbilang_total = $this->terbilang_rupiah($total_biaya);
+        $this->session->set_flashdata('success', 'Dokumen berhasil direvisi');
+        redirect('docxgenerator/timeline_dok/' . $id_dokumen);
+    }
 
-        setlocale(LC_TIME, 'id_ID.UTF-8');
-        $tanggal_buat = strftime('%d %B %Y');
+    public function edit_draft()
+    {
+        $this->cek_role(['operator']);
 
-        // Timpa file lama
-        $this->_generate_files([
-            'baseName'        => $baseName,
+        $id_dokumen = $this->input->post('id_dokumen', true);
+
+        $doc = $this->Docxgenerator_model->get_document_by_id($id_dokumen);
+        if (!$doc) {
+            show_error('Dokumen tidak ditemukan');
+        }
+
+        $baseName = $doc->file_doc;
+
+        $unit_organisasi = $this->input->post('unit_organisasi', true);
+        $program         = $this->input->post('program', true);
+        $kegiatan        = $this->input->post('kegiatan', true);
+        $kro             = $this->input->post('kro', true);
+        $ro              = $this->input->post('ro', true);
+        $komponen        = $this->input->post('komponen', true);
+        $kode_anggaran   = $this->input->post('kode_anggaran', true);
+        $akun_anggaran   = $this->input->post('akun_anggaran', true);
+        $tahun_anggaran  = $this->input->post('tahun_anggaran', true);
+        $dasar_hukum     = $this->input->post('dasar_hukum', true);
+        $gambaran_umum   = $this->input->post('gambaran_umum', true);
+        $maksud_tujuan   = $this->input->post('maksud_tujuan', true);
+        $keluaran        = $this->input->post('keluaran', true);
+        $nama_kegiatan   = $this->input->post('nama_kegiatan', true);
+        $waktu           = $this->input->post('waktu', true);
+        $tanggal_bayar   = $this->input->post('tanggal_bayar', true);
+        $lokasi          = $this->input->post('lokasi', true);
+        $vol             = $this->input->post('vol', true);
+        $satuan          = $this->input->post('satuan', true);
+        $biaya           = $this->input->post('biaya', true);
+
+        // Wilayah
+        $regency_id = $this->input->post('regency_id', true);
+        if ($regency_id && is_numeric($regency_id)) {
+            $wil = $this->Docxgenerator_model->get_regency_with_province($regency_id);
+            if (!$wil) {
+                show_error('Kab/Kota tidak valid atau tidak ditemukan di database wilayah.');
+            }
+            $kota_kegiatan = $wil['regency_name'];
+            $provinsi      = $wil['province_name'];
+        } else {
+            $kota_kegiatan = $doc->kota_kegiatan;
+            $provinsi      = $doc->provinsi;
+        }
+
+        // PPK & Kepala dari data lama (disabled di form)
+        $ppk = $this->Docxgenerator_model->get_ppk_by_id($doc->ppk_id);
+        if (!$ppk) {
+            show_error('PPK tidak valid atau tidak ditemukan');
+        }
+        $kepala     = $doc->kepala;
+        $nip_kepala = $doc->nip_kepala;
+
+        // Update DB
+        $this->Docxgenerator_model->update_document($id_dokumen, [
             'unit_organisasi' => $unit_organisasi,
             'program'         => $program,
             'kegiatan'        => $kegiatan,
@@ -260,19 +309,11 @@ class Docxgenerator extends Authenticated_Controller {
             'vol'             => $vol,
             'satuan'          => $satuan,
             'biaya'           => $biaya,
-            'biaya_fmt'       => $this->format_angka_rupiah($biaya),
-            'total_biaya'     => $total_biaya,
-            'total_biaya_fmt' => $this->format_angka_rupiah($total_biaya),
-            'terbilang_total' => $terbilang_total,
-            'nama_ppk'        => $ppk['nama'],
-            'nip_ppk'         => $ppk['nip'],
-            'kepala'          => $kepala,
-            'nip_kepala'      => $nip_kepala,
-            'tanggal_buat'    => $tanggal_buat,
+            'updated_at'      => date('Y-m-d H:i:s'),
         ]);
 
-        $this->session->set_flashdata('success', 'Dokumen berhasil direvisi');
-        redirect('docxgenerator/timeline_dok/' . $id_dokumen);
+        $this->session->set_flashdata('success', 'Draft dokumen berhasil direvisi');
+        redirect('docxgenerator');
     }
 
     // ================================================================
@@ -340,7 +381,7 @@ class Docxgenerator extends Authenticated_Controller {
                 9 => 'September', 10 => 'Oktober', 11 => 'November', 12 => 'Desember'
             ];
 
-            $date = new DateTime($dokumen->created_at);
+            $date = new DateTime();
             $tanggal_indo = $date->format('d') . ' ' . $bulan_indo[(int)$date->format('n')] . ' ' . $date->format('Y');
             
             $tanggal_buat     = $tanggal_indo;
@@ -385,16 +426,19 @@ class Docxgenerator extends Authenticated_Controller {
                 'ttd_kepala'      => $ttd_kepala,
             ]);
 
-            echo json_encode([
+            /*echo json_encode([
                 'status'     => true,
                 'message'    => 'Dokumen disetujui dan file berhasil digenerate',
                 'file_docx'  => $fileNames['docx'],
                 'file_pdf'   => $fileNames['pdf'],
             ]);
-            return;
+            return;*/
         }
 
-        echo json_encode(['status' => true, 'message' => 'Berhasil']);
+        $this->session->set_flashdata('success', 'Draft dokumen berhasil direvisi');
+        redirect('docxgenerator/timeline_dok/'.$id_dokumen);
+
+        echo json_encode(['status' => true, 'message' => 'Berhasil memproses dokumen']);
     }
 
     // ================================================================
