@@ -103,11 +103,12 @@
                         <option value="">-- pilih --</option>
                         <option value="revisi">Revisi</option>
                         <option value="disetujui">ACC</option>
+                        <option value="ditolak">Tolak</option>
                     </select>
                 </div>
 
                 <div class="mb-3 d-none" id="wrap_pesan">
-                    <label>Pesan Revisi</label>
+                    <label>Keterangan</label>
                     <textarea name="pesan" class="form-control"></textarea>
                 </div>
 
@@ -631,7 +632,8 @@
                             draft:'secondary',
                             ajuan_baru:'primary',
                             revisi:'warning',
-                            disetujui:'success'
+                            disetujui:'success',
+                            ditolak:'danger'
                         }[item.status] || 'dark';
 
                         html += `
@@ -686,7 +688,7 @@
         if (tlStatus) {
             tlStatus.addEventListener('change', function(){
                 const wrap = document.getElementById('wrap_pesan');
-                if (this.value === 'revisi') {
+                if (this.value === 'revisi' || this.value === 'ditolak') {
                     wrap.classList.remove('d-none');
                 } else {
                     wrap.classList.add('d-none');
