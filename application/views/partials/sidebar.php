@@ -10,7 +10,7 @@ $role = $this->session->userdata('role');
         <img src="<?= base_url('assets/images/pavicon.png') ?>" alt="Logo" style="width: 36px; height: 36px;" class="rounded">
         <div>
             <h2 class="h6 mb-0">Dashboard</h2>
-            <p class="text-muted small mb-0">Admin Panel</p>
+            <p class="text-muted small mb-0">SIPKAK</p>
         </div>
     </div>
 </div>

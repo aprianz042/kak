@@ -118,30 +118,32 @@
                             <?php if (!empty($profil->ttd)): ?>
                                 <img src="<?= base_url('storage/ttd/'.$profil->ttd) ?>"
                                 style="width:80px;height:80px;object-fit:contain;">
-                            <?php else: ?>
-                                <span class="text-muted">Belum ada tanda tangan</span>
-                            <?php endif; ?>
 
-                            <?php if (!empty($profil->ttd)): ?>
                                 <a href="<?= base_url('profil/hapus_ttd') ?>"
                                  class="btn btn-danger btn-sm"
                                  onclick="return confirm('Hapus TTD?')">
                                  Hapus
                              </a>
-                         <?php endif; ?>
 
-                     </div>
+                         <?php else: ?>
+                            <span class="text-muted">Belum ada tanda tangan</span>
+                        <?php endif; ?>
 
-                     <input type="file" name="ttd" id="ttdInput" class="form-control mb-2">
-                     <input type="hidden" name="ttd_base64" id="ttd_base64">
+                    </div>
 
-                     <button class="btn btn-primary">Upload</button>
-                 </div>
-             </div>
-         </form>
+                    <?php if (empty($profil->ttd)): ?>
+                        <input type="file" name="ttd" id="ttdInput" class="form-control mb-2">
+                        <input type="hidden" name="ttd_base64" id="ttd_base64">
 
-     </div>
- </div>
+                        <button class="btn btn-primary">Upload</button>
+                    <?php endif; ?>
+
+                </div>
+            </div>
+        </form>
+
+    </div>
+</div>
 </div>
 
 <div class="modal fade" id="cropModal" tabindex="-1">
